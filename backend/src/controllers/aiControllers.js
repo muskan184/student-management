@@ -4,7 +4,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 dotenv.config();
 console.log("Gemini API Key:", process.env.GEMINI_API_KEY);
 
-// ✅ Initialize Gemini client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export const generateAIFlashcards = async (req, res) => {
@@ -26,17 +25,11 @@ Return the flashcards in JSON array format like:
   {"question": "...", "answer": "...", "category": "..."}
 ]
     `;
-
-    // ✅ Use latest correct Gemini model
     const model = genAI.getGenerativeModel({
       model: "models/gemini-2.5-flash",
     });
-
-    // ✅ Generate AI content
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-
-    // ✅ Clean + parse JSON
     const cleanText = text.replace(/```json|```/g, "").trim();
     const flashcards = JSON.parse(cleanText);
 

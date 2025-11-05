@@ -35,7 +35,6 @@ export const generateAIResponse = async (req, res) => {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     console.log("GEMINI_API_KEY:", GEMINI_API_KEY ? "Loaded ✅" : "Missing ❌");
 
-    // ✅ Correct endpoint
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     const response = await axios.post(endpoint, {

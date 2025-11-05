@@ -23,10 +23,6 @@ app.use("/api/planner", plannerRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/aiResponse", aiResponseRouter);
 app.use("/uploads", express.static(path.join("uploads")));
-console.log("Gemini API Key:", process.env.GEMINI_API_KEY);
 connectDB();
-app.get("/", (req, res) => {
-  res.send("API is running...");
-});
 
 export default app;

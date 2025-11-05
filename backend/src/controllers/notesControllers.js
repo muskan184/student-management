@@ -2,7 +2,7 @@ import Note from "../models/Note.js";
 import path from "path";
 import fs from "fs";
 
-// 📝 Create Note (with or without file)
+
 export const createNote = async (req, res) => {
   try {
     const { title, content, category } = req.body;
@@ -30,19 +30,15 @@ export const createNote = async (req, res) => {
   }
 };
 
-// 📂 Get All Notes of a User
 export const getNotes = async (req, res) => {
   try {
-    const notes = await Note.find({ user: req.user.id }).sort({
-      createdAt: -1,
-    });
+    const notes = await Note.find({ user: req.user.id }).sort({ createdAt: -1 });
     res.status(200).json(notes);
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
-// ✏️ Update Note
 export const updateNote = async (req, res) => {
   try {
     const note = await Note.findOneAndUpdate(
@@ -57,7 +53,6 @@ export const updateNote = async (req, res) => {
   }
 };
 
-// 🗑️ Delete Note
 export const deleteNote = async (req, res) => {
   try {
     const note = await Note.findOneAndDelete({
