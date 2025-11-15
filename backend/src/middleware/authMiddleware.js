@@ -31,3 +31,14 @@ export const protect = async (req, res, next) => {
       .json({ message: "Not authorized, token failed", error: error.message });
   }
 };
+
+export const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json({ message: "Access Denied: Insufficient Role" });
+    }
+    next();
+  };
+};
