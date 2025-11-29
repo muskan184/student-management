@@ -1,39 +1,105 @@
-import { createContext, useEffect, useState } from "react";
+// src/context/AuthContext.jsx
+import React, { createContext, useContext, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  changePassword,
+  deleteUser,
+  fetchprofile,
+  logoutUser,
+  signupUser,
+  updateUser,
+} from "../api/authApi";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  const [loading, setLoading] = useState(false);
+  const qc = useQueryClient();
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: fetchprofile,
+    enabled: !!token,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
 
-  const login = (userData, token) => {
-    setUser(userData);
-    setToken(token);
-    localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", token);
-  };
+  const loginMutation = useMutation({
+    mutationFn: async (credentials) => {
+      const res = await loginUser(credentials);
+      return res;
+    },
+    onSuccess: (res) => {
+      // backend sends token in res.token
+      const token = res.token || res.data?.token;
+      if (token) {
+        localStorage.setItem("token", token);
+        setToken(token);
+        qc.invalidateQueries(["authUser"]);
+      }
+    },
+  });
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-  };
+  const registerMutation = useMutation({
+    mutationFn: (payload) => signupUser(payload),
+    onSuccess: (res) => {
+      const token = res.token || res.data?.token;
+      if (token) {
+        localStorage.setItem("token", token);
+        setToken(token);
+        qc.invalidateQueries(["authUser"]);
+      }
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: () => logoutUser(),
+    onSuccess: () => {
+      localStorage.removeItem("token");
+      setToken(null);
+      qc.removeQueries(["authUser"]);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (updates) => updateUser(updates),
+    onSuccess: (res) => qc.invalidateQueries(["authUser"]),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteUser(),
+    onSuccess: () => {
+      localStorage.removeItem("token");
+      setToken(null);
+      qc.removeQueries(["authUser"]);
+    },
+  });
+
+  const changePassMutation = useMutation({
+    mutationFn: (payload) => changePassword(payload),
+  });
+
+  const logout = () => logoutMutation.mutate();
 
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, login, logout, isAuthenticated: !!token }}
+      value={{
+        user,
+        isLoading,
+        token,
+        setToken,
+        loginMutation,
+        registerMutation,
+        logoutMutation,
+        logout,
+        updateMutation,
+        deleteMutation,
+        changePassMutation,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = () => useContext(AuthContext);
