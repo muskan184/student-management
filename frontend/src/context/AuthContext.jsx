@@ -21,10 +21,14 @@ export const AuthProvider = ({ children }) => {
     queryFn: fetchprofile,
     enabled: !!token,
     staleTime: Infinity,
+    cacheTime: 2 * 60 * 60 * 1000, // 2 hours
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    keepPreviousData: true,
   });
 
   const loginMutation = useMutation({
+    mutationKey: ["login"],
     mutationFn: async (credentials) => {
       const res = await loginUser(credentials);
       return res;
@@ -41,7 +45,11 @@ export const AuthProvider = ({ children }) => {
   });
 
   const registerMutation = useMutation({
-    mutationFn: (payload) => signupUser(payload),
+    mutationKey: ["signup"],
+    mutationFn: async (credentials) => {
+      const res = await signupUser(credentials);
+      return res;
+    },
     onSuccess: (res) => {
       const token = res.token || res.data?.token;
       if (token) {
@@ -53,6 +61,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const logoutMutation = useMutation({
+    mutationKey: ["logout"],
     mutationFn: () => logoutUser(),
     onSuccess: () => {
       localStorage.removeItem("token");
@@ -62,11 +71,13 @@ export const AuthProvider = ({ children }) => {
   });
 
   const updateMutation = useMutation({
+    mutationKey: ["updateUser"],
     mutationFn: (updates) => updateUser(updates),
     onSuccess: (res) => qc.invalidateQueries(["authUser"]),
   });
 
   const deleteMutation = useMutation({
+    mutationKey: ["deleteUser"],
     mutationFn: () => deleteUser(),
     onSuccess: () => {
       localStorage.removeItem("token");
@@ -76,6 +87,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const changePassMutation = useMutation({
+    mutationKey: ["changePassword"],
     mutationFn: (payload) => changePassword(payload),
   });
 

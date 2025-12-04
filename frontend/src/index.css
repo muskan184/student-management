@@ -1,3 +1,62 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.icon-hover-light {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.3s ease;
+}
+
+.icon-hover-light::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 60%;
+  height: 3px;
+  background-color: var(--primary-color);
+  border-radius: 9999px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.group:hover .icon-hover-light::before,
+.icon-hover-light:focus-within::before {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.group:hover .icon-hover-light {
+  box-shadow: 0 0 10px var(--primary-color);
+}
+
+@layer utilities {
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .animate-float {
+    animation: float 10s ease-in-out infinite;
+  }
+
+  .animate-float-reverse {
+    animation: float 12s ease-in-out infinite reverse;
+  }
+
+  .animate-float-slow {
+    animation: float 14s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin 30s linear infinite;
+  }
+}
