@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 
-export default function Login() {
+export const Login = () => {
   const { loginMutation } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -51,4 +51,4 @@ export default function Login() {
       </form>
     </div>
   );
-}
+};

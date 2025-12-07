@@ -15,6 +15,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const qc = useQueryClient();
   const [token, setToken] = useState(localStorage.getItem("token") || null);
+  console.log("AuthContext token:", token);
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["authUser"],
@@ -43,6 +44,7 @@ export const AuthProvider = ({ children }) => {
       }
     },
   });
+  console.log("AuthContext user:", user);
 
   const registerMutation = useMutation({
     mutationKey: ["signup"],
