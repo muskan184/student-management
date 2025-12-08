@@ -12,7 +12,7 @@ export const loginUser = async (data) => {
 
 export const fetchprofile = async () => {
   const res = await axiosInstance.get("/auth/profile");
-  return res.data;
+  return res.data.user;
 };
 
 export const updateUser = async (data) => {
