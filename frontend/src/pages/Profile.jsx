@@ -1,56 +1,91 @@
-import React from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { FiEdit2, FiTrash2, FiCamera } from "react-icons/fi";
 
-export default function Profile() {
-  const { user, logout, updateMutation, deleteMutation } = useAuth();
-  const navigate = useNavigate();
+const Profile = () => {
+  const { user } = useAuth();
 
-  if (!user) return <div className="p-6">No user</div>;
+  const [profilePic, setProfilePic] = useState(user?.profilePic || null);
 
-  const handleDelete = () => {
-    if (confirm("Are you sure to delete account?")) {
-      deleteMutation.mutate(null, { onSuccess: () => navigate("/signup") });
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imgURL = URL.createObjectURL(file);
+      setProfilePic(imgURL);
     }
   };
 
-  return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="bg-white p-6 rounded shadow flex gap-6">
-        <img
-          src={user.profilePic || "/default-avatar.png"}
-          alt="avatar"
-          className="w-28 h-28 rounded-full object-cover"
-        />
-        <div>
-          <h2 className="text-2xl font-bold">{user.name}</h2>
-          <p className="text-sm text-gray-600">{user.email}</p>
+  const handleDelete = () => {
+    setProfilePic(null);
+  };
 
-          <div className="mt-4 flex gap-3">
-            <button
-              className="bg-gray-100 px-3 py-1 rounded"
-              onClick={() => navigate("/update")}
+  return (
+    <div className="min-h-screen flex justify-center items-center bg-gray-100 px-4">
+      <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md relative">
+        {/* Profile Picture Block */}
+        <div className="flex flex-col items-center">
+          <div className="relative group">
+            <img
+              src={
+                profilePic ||
+                "https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
+              }
+              alt="profile"
+              className="w-32 h-32 rounded-full border-4 border-blue-500 shadow-lg object-cover"
+            />
+
+            {/* Hover Overlay */}
+            <div
+              className="absolute inset-0 bg-black/40 rounded-full
+             flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
             >
-              Edit
-            </button>
-            <button
-              className="bg-red-500 text-white px-3 py-1 rounded"
-              onClick={handleDelete}
-            >
-              Delete Account
-            </button>
-            <button
-              className="bg-gray-200 px-3 py-1 rounded"
-              onClick={() => {
-                logout();
-                navigate("/login");
-              }}
-            >
-              Logout
-            </button>
+              <label className="cursor-pointer flex flex-col items-center text-white">
+                <FiCamera size={24} />
+                <p className="text-xs">Change</p>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+              </label>
+            </div>
           </div>
+
+          {/* Buttons */}
+          <div className="flex gap-4 mt-3">
+            <button className="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-lg shadow hover:bg-blue-700">
+              <FiEdit2 />
+              Edit Info
+            </button>
+
+            {profilePic && (
+              <button
+                onClick={handleDelete}
+                className="flex items-center gap-1 bg-red-600 text-white px-3 py-2 rounded-lg shadow hover:bg-red-700"
+              >
+                <FiTrash2 />
+                Delete
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* User Info */}
+        <div className="mt-6 space-y-2 text-lg">
+          <p>
+            <strong>Name:</strong> {user?.name}
+          </p>
+          <p>
+            <strong>Email:</strong> {user?.email}
+          </p>
+          <p>
+            <strong>Role:</strong> {user?.role}
+          </p>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Profile;

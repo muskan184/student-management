@@ -5,6 +5,7 @@ import {
   changePassword,
   deleteUser,
   fetchprofile,
+  loginUser,
   logoutUser,
   signupUser,
   updateUser,

@@ -23,40 +23,16 @@
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.group:hover .icon-hover-light::before,
-.icon-hover-light:focus-within::before {
-  opacity: 1;
-  transform: translateY(0);
+/* optional helpers used above */
+.input {
+  @apply w-full p-3 border rounded-lg;
 }
-
-.group:hover .icon-hover-light {
-  box-shadow: 0 0 10px var(--primary-color);
+.btn {
+  @apply px-4 py-2 rounded;
 }
-
-@layer utilities {
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-20px);
-    }
-  }
-
-  .animate-float {
-    animation: float 10s ease-in-out infinite;
-  }
-
-  .animate-float-reverse {
-    animation: float 12s ease-in-out infinite reverse;
-  }
-
-  .animate-float-slow {
-    animation: float 14s ease-in-out infinite;
-  }
-
-  .animate-spin-slow {
-    animation: spin 30s linear infinite;
-  }
+.btn-primary {
+  @apply bg-blue-600 text-white;
+}
+.btn-danger {
+  @apply bg-red-600 text-white;
 }
