@@ -66,7 +66,7 @@ export const TopBar = ({ setShowLogoutModal }) => {
           <div className="relative flex items-center gap-3">
             {/* Profile Image → Direct Profile Page */}
             <button
-              onClick={() => navigate("/teacher/profile")}
+              onClick={() => navigate("/teacher/profiles")}
               className="flex items-center gap-2 rounded-full px-2 py-1 border border-[var(--primary-color)] bg-white shadow-sm hover:shadow-md transition"
             >
               <img
@@ -95,7 +95,7 @@ export const TopBar = ({ setShowLogoutModal }) => {
                   initial="hidden"
                   animate="show"
                   exit="exit"
-                  className="absolute right-0 mt-12 w-56 bg-white shadow-xl rounded-md p-2 border z-50"
+                  className="absolute right-0 mt-12 w-56 bg-white shadow-xl rounded-md p-2 border z-50 top-0"
                 >
                   {/* Role Dashboards */}
                   {isStudent && (
