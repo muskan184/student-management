@@ -5,39 +5,62 @@ import { deleteUser, fetchprofile, updateUser } from "../api/authApi";
 
 export default function TeacherProfileEditor() {
   const [loading, setLoading] = useState(true);
+  const [edit, setEdit] = useState(false);
+
   const [form, setForm] = useState({
     name: "",
     email: "",
+    role: "",
     profilePic: "",
     subject: "",
+    phone: "",
+    dob: "",
+    address: "",
+    qualification: "",
+    experience: "",
   });
-  const [edit, setEdit] = useState(false);
 
+  // Fetch user profile
   useEffect(() => {
     fetchprofile()
       .then((res) => {
         const u = res.user || res;
+
         setForm({
           name: u.name,
           email: u.email,
-          subject: u.subject || "",
+          role: u.role,
           profilePic: u.profilePic || "/default-avatar.png",
+          subject: u.subject || "",
+          phone: u.phone || "",
+          dob: u.dob || "",
+          address: u.address || "",
+          qualification: u.qualification || "",
+          experience: u.experience || "",
         });
+
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
+  // Image upload handler
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    setForm((prev) => ({ ...prev, profilePic: url }));
+
+    // TODO: if you want to upload to backend/cloudinary → use file here
+  };
+
   const save = async () => {
     try {
-      await updateUser({
-        name: form.name,
-        subject: form.subject,
-        profilePic: form.profilePic,
-      });
-      toast.success("Teacher profile updated");
+      await updateUser(form);
+      toast.success("Profile updated successfully!");
       setEdit(false);
-    } catch (err) {
+    } catch {
       toast.error("Update failed");
     }
   };
@@ -45,9 +68,9 @@ export default function TeacherProfileEditor() {
   const del = async () => {
     try {
       await deleteUser();
-      toast.success("Account deleted");
+      toast.success("Account deleted successfully");
       window.location.href = "/";
-    } catch (err) {
+    } catch {
       toast.error("Delete failed");
     }
   };
@@ -55,72 +78,87 @@ export default function TeacherProfileEditor() {
   if (loading) return <div className="p-6">Loading...</div>;
 
   return (
-    <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
-      <h2 className="text-2xl font-bold mb-3">Teacher Profile</h2>
+    <div className="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-xl shadow-lg">
+      <h2 className="text-3xl font-bold mb-4 text-gray-800">Teacher Profile</h2>
 
+      {/* Image + Upload */}
       <div className="flex items-center gap-6">
         <img
           src={form.profilePic}
-          className="w-28 h-28 rounded-full object-cover border"
+          className="w-32 h-32 rounded-full object-cover border shadow"
         />
 
         {edit && (
           <input
-            className="border p-2 rounded w-full"
-            placeholder="Profile picture URL"
-            value={form.profilePic}
-            onChange={(e) => setForm({ ...form, profilePic: e.target.value })}
+            type="file"
+            accept="image/*"
+            className="block w-full text-gray-700"
+            onChange={handleImageChange}
           />
         )}
       </div>
 
-      <div className="mt-6 space-y-4">
-        <div>
-          <p className="text-sm text-gray-600">Full Name</p>
-          {edit ? (
-            <input
-              className="border p-2 rounded w-full"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
-          ) : (
-            <p className="font-medium">{form.name}</p>
-          )}
-        </div>
+      <div className="mt-6 space-y-5">
+        {/* Name */}
+        <Field
+          label="Full Name"
+          value={form.name}
+          edit={edit}
+          onChange={(v) => setForm({ ...form, name: v })}
+        />
 
-        <div>
-          <p className="text-sm text-gray-600">Email</p>
-          <p className="font-medium">{form.email}</p>
-        </div>
+        {/* Email */}
+        <StaticField label="Email" value={form.email} />
 
-        <div>
-          <p className="text-sm text-gray-600">Subject</p>
-          {edit ? (
-            <input
-              className="border p-2 rounded w-full"
-              value={form.subject}
-              onChange={(e) => setForm({ ...form, subject: e.target.value })}
-              placeholder="e.g. Mathematics"
-            />
-          ) : (
-            <p className="font-medium">{form.subject || "Not assigned"}</p>
-          )}
-        </div>
+        {/* Role */}
+        <StaticField label="Role" value={form.role.toUpperCase()} />
+
+        {/* Subject */}
+        <Field
+          label="Subject"
+          placeholder="Mathematics, English..."
+          value={form.subject}
+          edit={edit}
+          onChange={(v) => setForm({ ...form, subject: v })}
+        />
+
+        {/* Phone */}
+
+        {/* Qualification */}
+        <Field
+          label="Qualification"
+          placeholder="B.Ed, M.Sc..."
+          value={form.qualification}
+          edit={edit}
+          onChange={(v) => setForm({ ...form, qualification: v })}
+        />
+
+        {/* Experience */}
+        <Field
+          label="Experience (Years)"
+          type="number"
+          placeholder="3"
+          value={form.experience}
+          edit={edit}
+          onChange={(v) => setForm({ ...form, experience: v })}
+        />
+
+        {/* Address */}
       </div>
 
-      {/* Actions */}
+      {/* Buttons */}
       <div className="flex justify-between mt-6">
         {!edit ? (
           <button
             onClick={() => setEdit(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg"
           >
             Edit Profile
           </button>
         ) : (
           <button
             onClick={save}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg"
+            className="px-5 py-2 bg-green-600 text-white rounded-lg"
           >
             Save Changes
           </button>
@@ -128,11 +166,51 @@ export default function TeacherProfileEditor() {
 
         <button
           onClick={del}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg"
+          className="px-5 py-2 bg-red-600 text-white rounded-lg"
         >
           Delete Account
         </button>
       </div>
+    </div>
+  );
+}
+
+/* Reusable Components */
+
+function Field({ label, value, edit, onChange, placeholder, type = "text" }) {
+  return (
+    <div>
+      <p className="text-sm text-gray-500">{label}</p>
+
+      {edit ? (
+        type === "textarea" ? (
+          <textarea
+            className="border p-2 rounded-lg w-full mt-1"
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        ) : (
+          <input
+            type={type}
+            className="border p-2 rounded-lg w-full mt-1"
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        )
+      ) : (
+        <p className="font-medium">{value || "Not provided"}</p>
+      )}
+    </div>
+  );
+}
+
+function StaticField({ label, value }) {
+  return (
+    <div>
+      <p className="text-sm text-gray-500">{label}</p>
+      <p className="font-medium">{value}</p>
     </div>
   );
 }

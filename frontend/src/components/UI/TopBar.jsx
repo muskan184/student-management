@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { DarkLightToggleButton } from "./DarkLightToggleButton";
 import { ColorPiker } from "./ColorPicker";
@@ -42,20 +42,16 @@ export const TopBar = ({ setShowLogoutModal }) => {
       transition={{ type: "spring", stiffness: 90 }}
       className="flex items-center sticky top-0 z-50 justify-between px-4 py-2 bg-white/80 backdrop-blur-md border-b shadow-sm"
     >
-      {/* Left Area (Empty for now) */}
       <div className="flex-1"></div>
 
-      {/* Right Area */}
+      {/* RIGHT SIDE AREA */}
       <div className="ml-4 flex gap-4 items-center relative">
-        {/* Notifications only when logged in */}
         {user && (
           <IoNotificationsOutline className="text-2xl cursor-pointer text-gray-600 hover:text-[var(--primary-color)] transition" />
         )}
 
-        {/* Color Picker */}
         <ColorPiker />
 
-        {/* Theme Toggle */}
         <DarkLightToggleButton
           toggleDarkMode={toggleDarkMode}
           isDarkMode={isDarkMode}
@@ -64,9 +60,13 @@ export const TopBar = ({ setShowLogoutModal }) => {
         {/* ---- USER LOGGED IN ---- */}
         {user ? (
           <div className="relative flex items-center gap-3">
-            {/* Profile Image → Direct Profile Page */}
+            {/* PROFILE CLICK → OPEN ROLE-BASED PROFILE */}
             <button
-              onClick={() => navigate("/teacher/profiles")}
+              onClick={() => {
+                if (isStudent) navigate("/student/profile");
+                else if (isTeacher) navigate("/teacher/profile");
+                else if (isAdmin) navigate("/admin/profile");
+              }}
               className="flex items-center gap-2 rounded-full px-2 py-1 border border-[var(--primary-color)] bg-white shadow-sm hover:shadow-md transition"
             >
               <img
@@ -79,7 +79,7 @@ export const TopBar = ({ setShowLogoutModal }) => {
               </span>
             </button>
 
-            {/* 3 Dots Menu → Dropdown */}
+            {/* 3 DOTS MENU */}
             <button
               onClick={toggleDropdown}
               className="p-2 rounded-full hover:bg-gray-200 transition"
@@ -87,7 +87,7 @@ export const TopBar = ({ setShowLogoutModal }) => {
               <BsThreeDotsVertical className="text-xl text-gray-600" />
             </button>
 
-            {/* DROPDOWN MENU */}
+            {/* DROPDOWN */}
             <AnimatePresence>
               {isOpen && (
                 <motion.div
@@ -97,7 +97,7 @@ export const TopBar = ({ setShowLogoutModal }) => {
                   exit="exit"
                   className="absolute right-0 mt-12 w-56 bg-white shadow-xl rounded-md p-2 border z-50 top-0"
                 >
-                  {/* Role Dashboards */}
+                  {/* ROLE-BASED DASHBOARD LINKS */}
                   {isStudent && (
                     <DropdownItem to="/student/dashboard" icon={<FaUser />}>
                       Student Dashboard
@@ -111,17 +111,17 @@ export const TopBar = ({ setShowLogoutModal }) => {
                   )}
 
                   {isAdmin && (
-                    <DropdownItem to="/admin/panel" icon={<FaUser />}>
-                      Admin Panel
+                    <DropdownItem to="/admin/dashboard" icon={<FaUser />}>
+                      Admin Dashboard
                     </DropdownItem>
                   )}
 
-                  {/* Edit Profile */}
+                  {/* EDIT PROFILE */}
                   <DropdownItem to="/edit-profile" icon={<FiSettings />}>
                     Edit Profile
                   </DropdownItem>
 
-                  {/* Logout */}
+                  {/* LOGOUT */}
                   <button
                     onClick={() => {
                       setShowLogoutModal(true);
@@ -136,7 +136,7 @@ export const TopBar = ({ setShowLogoutModal }) => {
             </AnimatePresence>
           </div>
         ) : (
-          // ---- NO USER (Show Login + Signup) ----
+          // ---- NO USER → SHOW LOGIN/SIGNUP ----
           <div className="flex gap-2">
             <NavLink to="/login">
               <button className="px-4 py-2 bg-[var(--primary-color)] text-white rounded-full shadow hover:shadow-md transition">

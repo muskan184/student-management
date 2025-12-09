@@ -6,9 +6,9 @@ import { use } from "react";
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "Please enter all fields" });
     }
     const existingUser = await User.findOne({ email });
@@ -20,6 +20,7 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password,
+      role,
     });
 
     res.status(201).json({
@@ -28,6 +29,7 @@ export const registerUser = async (req, res) => {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
+        role: newUser.role,
       },
     });
   } catch (error) {
@@ -83,6 +85,7 @@ export const getProfile = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         followers: user.followers || [],
         following: user.following || [],
         profilePic: user.profilePic || "",
