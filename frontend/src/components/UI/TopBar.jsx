@@ -70,7 +70,7 @@ export const TopBar = ({ setShowLogoutModal }) => {
               className="flex items-center gap-2 rounded-full px-2 py-1 border border-[var(--primary-color)] bg-white shadow-sm hover:shadow-md transition"
             >
               <img
-                src={user.profileImg}
+                src={user.profileImage}
                 alt="user"
                 className="w-8 h-8 rounded-full object-cover"
               />

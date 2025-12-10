@@ -19,6 +19,7 @@ export default function StudentProfileEditor() {
     branch: "",
     semester: "",
   });
+  console.log(form);
 
   // Fetch profile
   useEffect(() => {

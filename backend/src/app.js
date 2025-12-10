@@ -24,6 +24,7 @@ app.use(
 );
 app.use(morgan("dev"));
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 app.use("/api/auth", userRouter);
 app.use("/api/notes", noteRouter);

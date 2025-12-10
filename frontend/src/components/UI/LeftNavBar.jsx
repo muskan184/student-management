@@ -1,155 +1,156 @@
+/* --- STUDENT SIDEBAR WITH DROPDOWN MENUS --- */
+
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 
-// Icons
 import { AiFillHome } from "react-icons/ai";
 import { FaUserEdit, FaSignOutAlt } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
 import { RxCross2 } from "react-icons/rx";
-import { BsFolder2Open } from "react-icons/bs";
-import { MdVideoLibrary } from "react-icons/md";
-import { FaBloggerB } from "react-icons/fa";
-import { RiCompassDiscoverLine } from "react-icons/ri";
+import { MdOutlineLibraryBooks } from "react-icons/md";
+import { RiFlashlightLine } from "react-icons/ri";
+import { TbListDetails } from "react-icons/tb";
+import { RiQuestionAnswerLine } from "react-icons/ri";
+import { PiRobotBold } from "react-icons/pi";
 
 import { useAuth } from "../../context/AuthContext";
 
-export const LeftNavBar = ({ setShowLogoutModal }) => {
-  const [isOpen, setIsOpen] = useState(window.innerWidth > 768);
+export const LeftNavBar = ({ setShowLogoutModal, isOpen, setIsOpen }) => {
+  const [openMenu, setOpenMenu] = useState(null);
   const { user } = useAuth();
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
+  // ⛔ If no user → don't render sidebar
+  if (!user) {
+    return null;
+  }
 
-  // Normalize role
   const role = user?.role?.toLowerCase();
+
+  const toggleDropdown = (menu) => {
+    setOpenMenu(openMenu === menu ? null : menu);
+  };
 
   return (
     <motion.div
-      initial={{ width: isOpen ? 260 : 64 }}
-      animate={{ width: isOpen ? 260 : 64 }}
-      transition={{ duration: 0.4, type: "spring" }}
-      className="bg-white dark:bg-white text-gray-700 dark:text-white h-screen p-3 fixed md:relative flex flex-col z-50 shadow-lg border-r border-gray-200 dark:border-gray-800"
+      initial={{ width: isOpen ? 260 : 70 }}
+      animate={{ width: isOpen ? 260 : 70 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white border-r h-screen fixed left-0 top-0 z-50 p-3 shadow-sm"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
         {isOpen && (
-          <span className="text-xl font-semibold text-black">
+          <span className="text-xl font-semibold whitespace-nowrap">
             IntelliConnect
           </span>
         )}
 
+        {/* Collapse Button */}
         <button
-          className="bg-gray-100 dark:bg-black p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-          onClick={toggleSidebar}
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 rounded hover:bg-gray-100"
         >
           {isOpen ? <RxCross2 size={20} /> : <FiMenu size={20} />}
         </button>
       </div>
 
-      {/* Nav Links */}
-      <nav className="mt-4 flex-1">
-        <ul className="space-y-1">
-          {/* Home */}
-          <NavItem to="/" text="Home" isOpen={isOpen} icon={<AiFillHome />} />
-
-          {/* STUDENT */}
+      {/* MENU */}
+      <nav className="mt-6">
+        <ul className="space-y-2">
           {role === "student" && (
             <>
               <NavItem
-                to="/student/upload-query"
-                text="Upload Query"
+                to="/student/dashboard"
+                text="Dashboard"
                 isOpen={isOpen}
-                icon={<BsFolder2Open />}
+                icon={<AiFillHome />}
+              />
+
+              <DropdownMenu
+                title="Notes"
+                menuKey="notes"
+                isOpen={isOpen}
+                openMenu={openMenu}
+                toggleDropdown={toggleDropdown}
+                icon={<MdOutlineLibraryBooks />}
+                links={[
+                  { to: "/student/notes", label: "All Notes" },
+                  { to: "/student/notes/create", label: "Create Note" },
+                ]}
+              />
+
+              <DropdownMenu
+                title="Flashcards"
+                menuKey="flashcards"
+                isOpen={isOpen}
+                openMenu={openMenu}
+                toggleDropdown={toggleDropdown}
+                icon={<RiFlashlightLine />}
+                links={[
+                  { to: "/student/flashcards", label: "All Flashcards" },
+                  {
+                    to: "/student/flashcards/create",
+                    label: "Create Flashcard",
+                  },
+                ]}
+              />
+
+              <DropdownMenu
+                title="Planner"
+                menuKey="planner"
+                isOpen={isOpen}
+                openMenu={openMenu}
+                toggleDropdown={toggleDropdown}
+                icon={<TbListDetails />}
+                links={[
+                  { to: "/student/planner", label: "All Tasks" },
+                  { to: "/student/planner/add-task", label: "Add Task" },
+                ]}
+              />
+
+              <DropdownMenu
+                title="Q/A Forum"
+                menuKey="questions"
+                isOpen={isOpen}
+                openMenu={openMenu}
+                toggleDropdown={toggleDropdown}
+                icon={<RiQuestionAnswerLine />}
+                links={[
+                  { to: "/student/questions", label: "All Questions" },
+                  { to: "/student/questions/ask", label: "Ask Question" },
+                ]}
               />
 
               <NavItem
-                to="/student/responses"
-                text="Responses"
+                to="/student/ai"
+                text="AI Assistant"
                 isOpen={isOpen}
-                icon={<MdVideoLibrary />}
+                icon={<PiRobotBold />}
               />
             </>
           )}
 
-          {/* TEACHER */}
-          {role === "teacher" && (
-            <>
-              <NavItem
-                to="/teacher/manage-students"
-                text="Manage Students"
-                isOpen={isOpen}
-                icon={<RiCompassDiscoverLine />}
-              />
+          {/* Edit Profile */}
+          <NavItem
+            to="/student/profile"
+            text="Edit Profile"
+            isOpen={isOpen}
+            icon={<FaUserEdit />}
+          />
 
-              <NavItem
-                to="/teacher/queries"
-                text="Student Queries"
-                isOpen={isOpen}
-                icon={<FaBloggerB />}
-              />
-            </>
-          )}
-
-          {/* ADMIN/AI */}
-          {(role === "admin" || role === "ai") && (
-            <>
-              <NavItem
-                to="/admin/users"
-                text="User Management"
-                isOpen={isOpen}
-                icon={<RiCompassDiscoverLine />}
-              />
-
-              <NavItem
-                to="/admin/reports"
-                text="Reports"
-                isOpen={isOpen}
-                icon={<BsFolder2Open />}
-              />
-
-              <NavItem
-                to="/admin/ai-analysis"
-                text="AI Analysis"
-                isOpen={isOpen}
-                icon={<MdVideoLibrary />}
-              />
-            </>
-          )}
-
-          {/* Divider */}
-          {user && (
-            <>
-              <div className="border-t my-3 border-gray-300 dark:border-gray-700" />
-
-              {/* Edit Profile */}
-              <NavItem
-                to="/edit-profile"
-                text="Edit Profile"
-                isOpen={isOpen}
-                icon={<FaUserEdit />}
-              />
-
-              {/* Logout */}
-              <li>
-                <div
-                  onClick={() => setShowLogoutModal(true)}
-                  className={`flex items-center ${
-                    isOpen ? "gap-3" : "justify-center"
-                  } p-2 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-gray-800 cursor-pointer transition`}
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.2 }}
-                    className="w-6 h-6 flex justify-center items-center"
-                  >
-                    <FaSignOutAlt size={20} />
-                  </motion.div>
-                  {isOpen && (
-                    <span className="text-sm font-medium">Logout</span>
-                  )}
-                </div>
-              </li>
-            </>
-          )}
+          {/* LOGOUT */}
+          <li className="pt-4 border-t">
+            <div
+              onClick={() => setShowLogoutModal(true)}
+              className={`flex items-center p-2 cursor-pointer text-red-500 ${
+                isOpen ? "gap-3" : "justify-center"
+              }`}
+            >
+              <FaSignOutAlt size={20} />
+              {isOpen && "Logout"}
+            </div>
+          </li>
         </ul>
       </nav>
     </motion.div>
@@ -157,48 +158,48 @@ export const LeftNavBar = ({ setShowLogoutModal }) => {
 };
 
 const NavItem = ({ to, text, icon, isOpen }) => (
-  <li className="relative group">
+  <li>
     <NavLink
       to={to}
-      className={({ isActive }) =>
-        `flex items-center relative overflow-hidden ${
-          isOpen ? "gap-3" : "justify-center"
-        } p-3 rounded-lg transition-all duration-300 z-10 font-medium
-        ${
-          isActive
-            ? "bg-[var(--primary-color)]/20 text-[var(--primary-color)] shadow-inner shadow-[var(--primary-color)]"
-            : "hover:bg-[var(--primary-color)]/10 text-gray-700 dark:text-white"
-        }`
-      }
+      className="flex items-center gap-3 p-3 rounded hover:bg-gray-100"
     >
-      {/* Hover glow */}
-      <span className="absolute -top-4 -left-4 w-24 h-24 bg-[var(--primary-color)] opacity-10 blur-2xl rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 z-0" />
-
-      {/* Icon */}
-      <motion.div
-        initial={{ x: -10 }}
-        whileHover={{ x: 0, rotate: 15 }}
-        transition={{ type: "spring", stiffness: 300 }}
-        className="w-6 h-6 flex justify-center items-center z-10 group-hover:text-[var(--primary-color)]"
-      >
-        {icon}
-      </motion.div>
-
-      {/* Text */}
-      {isOpen && (
-        <motion.span
-          initial={{ y: 5, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.3 }}
-          className="z-10 text-sm tracking-wide group-hover:text-[var(--primary-color)] group-hover:drop-shadow-md"
-        >
-          {text}
-        </motion.span>
-      )}
+      {icon}
+      {isOpen && <span>{text}</span>}
     </NavLink>
+  </li>
+);
 
-    {/* Underline animation */}
-    <span className="absolute bottom-1 left-3 w-0 h-0.5 bg-[var(--primary-color)] group-hover:w-5 transition-all duration-500 rounded-full" />
+const DropdownMenu = ({
+  title,
+  icon,
+  links,
+  menuKey,
+  isOpen,
+  openMenu,
+  toggleDropdown,
+}) => (
+  <li>
+    <button
+      onClick={() => toggleDropdown(menuKey)}
+      className="flex items-center w-full p-3 gap-3 hover:bg-gray-100 rounded"
+    >
+      {icon}
+      {isOpen && (
+        <div className="flex justify-between w-full">
+          <span>{title}</span>
+          <span>{openMenu === menuKey ? "▲" : "▼"}</span>
+        </div>
+      )}
+    </button>
+
+    {openMenu === menuKey && (
+      <ul className="ml-10 space-y-1">
+        {links.map((item, i) => (
+          <NavLink key={i} to={item.to} className="block p-2 hover:underline">
+            {item.label}
+          </NavLink>
+        ))}
+      </ul>
+    )}
   </li>
 );

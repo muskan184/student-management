@@ -1,7 +1,7 @@
 // src/App.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Signup } from "./pages/Signup";
+
 import { Login } from "./pages/Login";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
@@ -13,6 +13,7 @@ import { RoleRoute } from "./components/RoleRoute";
 import Home from "./pages/Home";
 import { MainLayout } from "./components/Layout/MainLayout";
 import { RightLayout } from "./components/Layout/RightLayout";
+import Signup from "./pages/Signup";
 
 export default function App() {
   return (

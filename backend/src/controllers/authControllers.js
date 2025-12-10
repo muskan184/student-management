@@ -265,12 +265,10 @@ export const updateUser = async (req, res) => {
   try {
     const userId = req.user._id;
     const updates = req.body;
-
-    if (updates.password) {
-      return res
-        .status(400)
-        .json({ message: "Password cannot be updated here" });
+    if (req.file) {
+      updates.profilePic = "/uploads/" + req.file.filename;
     }
+
     const updatedUser = await User.findByIdAndUpdate(userId, updates, {
       new: true,
       runValidators: true,

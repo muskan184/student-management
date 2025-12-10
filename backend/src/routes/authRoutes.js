@@ -15,15 +15,27 @@ import {
   unfollowUser,
   updateUser,
 } from "../controllers/authControllers.js";
+import multer from "multer";
 import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage });
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/", protect, getAllUsers);
 router.get("/profile", protect, getProfile);
 router.post("/logout", protect, logoutUser);
-router.put("/update", protect, updateUser);
+router.put("/update", upload.single("profilePic"), protect, updateUser);
 router.delete("/delete", protect, deleteUser);
 router.put("/change-password", protect, changePassword);
 router.get("/followers", protect, getFollowers);

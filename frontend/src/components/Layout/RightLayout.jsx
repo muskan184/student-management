@@ -4,19 +4,18 @@ import { Toaster } from "react-hot-toast";
 import { TopBar } from "../UI/TopBar";
 
 export const RightLayout = () => {
-  // Receive props from MainLayout
-  const { setShowLogoutModal } = useOutletContext();
+  const { setShowLogoutModal, isSidebarOpen } = useOutletContext();
+
+  const sidebarWidth = isSidebarOpen ? "ml-[260px]" : "ml-[70px]";
 
   return (
-    <div className="w-full h-screen flex flex-col">
-      {/* TOP BAR */}
+    <div
+      className={`w-full min-h-screen flex flex-col transition-all duration-300 ${sidebarWidth}`}
+    >
       <TopBar setShowLogoutModal={setShowLogoutModal} />
 
-      {/* MAIN RIGHT CONTENT */}
-      <div className="right-pannel-scrollbar flex-1 overflow-auto">
+      <div className="flex-1 p-4 overflow-auto">
         <Outlet />
-
-        {/* Toast notifications */}
         <Toaster position="top-center" containerStyle={{ marginTop: "90px" }} />
       </div>
     </div>
