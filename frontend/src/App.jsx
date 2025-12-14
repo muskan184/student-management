@@ -14,6 +14,10 @@ import Home from "./pages/Home";
 import { MainLayout } from "./components/Layout/MainLayout";
 import { RightLayout } from "./components/Layout/RightLayout";
 import Signup from "./pages/Signup";
+import AllNotes from "./pages/student/notes/AllNotes";
+import CreateNote from "./pages/student/notes/CreateNotes";
+import NoteDetails from "./pages/student/notes/NotesDetails";
+import EditNote from "./pages/student/notes/EditNotes";
 
 export default function App() {
   return (
@@ -77,6 +81,10 @@ export default function App() {
             path="/no-access"
             element={<div className="p-8 text-center">Access Denied</div>}
           />
+          <Route path="/student/notes" element={<AllNotes />} />
+          <Route path="/student/notes/create" element={<CreateNote />} />
+          <Route path="/student/notes/:id" element={<NoteDetails />} />
+          <Route path="/student/notes/:id/edit" element={<EditNote />} />
         </Route>
       </Route>
     </Routes>

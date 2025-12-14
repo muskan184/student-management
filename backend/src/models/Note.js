@@ -29,6 +29,15 @@ const noteSchema = new mongoose.Schema(
       enum: ["pdf", "doc", "docx", "none"],
       default: null,
     },
+    isStarred: {
+      type: Boolean,
+      default: false,
+    },
+    isPinned: {
+      type: Boolean,
+      default: false,
+    },
+
     tags: [String],
   },
   { timestamps: true }

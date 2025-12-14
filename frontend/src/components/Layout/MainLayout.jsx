@@ -18,7 +18,9 @@ export const MainLayout = () => {
       />
 
       {/* RIGHT / MAIN CONTENT */}
-      <Outlet context={{ setShowLogoutModal, isSidebarOpen }} />
+      <Outlet
+        context={{ setShowLogoutModal, isSidebarOpen, setIsSidebarOpen }}
+      />
     </div>
   );
 };

@@ -2,7 +2,6 @@ import Note from "../models/Note.js";
 import path from "path";
 import fs from "fs";
 
-
 export const createNote = async (req, res) => {
   try {
     const { title, content, category } = req.body;
@@ -10,7 +9,9 @@ export const createNote = async (req, res) => {
     let fileType = "none";
 
     if (req.file) {
-      fileUrl = `/uploads/${req.file.filename}`;
+      const hostUrl = `${req.protocol}://${req.get("host")}`;
+      fileUrl = `${hostUrl}/uploads/${req.file.filename}`;
+
       const ext = path.extname(req.file.originalname).toLowerCase();
       fileType = ext === ".pdf" ? "pdf" : "doc";
     }
@@ -32,7 +33,9 @@ export const createNote = async (req, res) => {
 
 export const getNotes = async (req, res) => {
   try {
-    const notes = await Note.find({ user: req.user.id }).sort({ createdAt: -1 });
+    const notes = await Note.find({ user: req.user.id }).sort({
+      createdAt: -1,
+    });
     res.status(200).json(notes);
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
@@ -71,4 +74,35 @@ export const deleteNote = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
+};
+
+export const getNoteById = async (req, res) => {
+  try {
+    const noteId = req.params.id;
+    const userId = req.user._id;
+
+    const note = await Note.findOne({ _id: noteId, user: userId });
+
+    if (!note) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+
+    res.status(200).json({ note });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+export const toggleStar = async (req, res) => {
+  const note = await Note.findById(req.params.id);
+  note.isStarred = !note.isStarred;
+  await note.save();
+  res.json(note);
+};
+
+export const togglePin = async (req, res) => {
+  const note = await Note.findById(req.params.id);
+  note.isPinned = !note.isPinned;
+  await note.save();
+  res.json(note);
 };

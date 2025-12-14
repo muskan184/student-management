@@ -24,7 +24,7 @@ app.use(
 );
 app.use(morgan("dev"));
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.resolve("uploads")));
 
 app.use("/api/auth", userRouter);
 app.use("/api/notes", noteRouter);
@@ -33,7 +33,7 @@ app.use("/api/ai", aiRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/answers", answerRouter);
 app.use("/api/aiResponse", aiResponseRouter);
-app.use("/uploads", express.static(path.join("uploads")));
+
 connectDB();
 
 export default app;

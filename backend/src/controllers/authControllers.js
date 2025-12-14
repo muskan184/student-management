@@ -2,7 +2,6 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import TokenBlacklist from "../models/tokenBlacklistSchema.js";
-import { use } from "react";
 
 export const registerUser = async (req, res) => {
   try {
