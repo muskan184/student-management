@@ -10,6 +10,7 @@ import aiRouter from "./routes/aiRoutes.js";
 import questionRouter from "./routes/questionRoutes.js";
 import answerRouter from "./routes/answerRoutes.js";
 import aiResponseRouter from "./routes/aiResponseRoutes.js";
+import flashRouter from "./routes/flashcardRoutes.js";
 import path from "path";
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.use("/api/notes", noteRouter);
 app.use("/api/planner", plannerRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/questions", questionRouter);
+app.use("/api/flashcards", flashRouter);
 app.use("/api/answers", answerRouter);
 app.use("/api/aiResponse", aiResponseRouter);
 

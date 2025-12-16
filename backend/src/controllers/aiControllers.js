@@ -38,7 +38,11 @@ Return the flashcards in JSON array format like:
       flashcards,
     });
   } catch (error) {
-    console.error("Gemini AI Error:", error);
+    if (error.message.includes("503")) {
+      return res.status(503).json({
+        message: "AI is busy right now. Please try again in a few seconds.",
+      });
+    }
     res.status(500).json({
       message: "Failed to generate AI flashcards",
       error: error.message,

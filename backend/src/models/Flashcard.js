@@ -1,22 +1,14 @@
 import mongoose from "mongoose";
 
 const flashcardSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  question: {
-    type: String,
-    required: true,
-  },
-  answer: {
-    type: String,
-    required: true,
-  },
-  category: {
-    type: String,
-  },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  title: String,
+  cards: [
+    {
+      question: String,
+      answer: String,
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

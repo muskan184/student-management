@@ -18,6 +18,10 @@ import AllNotes from "./pages/student/notes/AllNotes";
 import CreateNote from "./pages/student/notes/CreateNotes";
 import NoteDetails from "./pages/student/notes/NotesDetails";
 import EditNote from "./pages/student/notes/EditNotes";
+import FlashcardList from "./pages/student/flashcards/FlashcardList";
+import CreateFlashcard from "./pages/student/flashcards/CreateFlashcard";
+import FlashcardPlayer from "./pages/student/flashcards/FlashcardPlayer";
+import AIFlashcard from "./pages/student/flashcards/AIFlashcard";
 
 export default function App() {
   return (
@@ -85,6 +89,16 @@ export default function App() {
           <Route path="/student/notes/create" element={<CreateNote />} />
           <Route path="/student/notes/:id" element={<NoteDetails />} />
           <Route path="/student/notes/:id/edit" element={<EditNote />} />
+          <Route path="/student/flashcards" element={<FlashcardList />} />
+          <Route
+            path="/student/flashcards/create"
+            element={<CreateFlashcard />}
+          />
+          <Route
+            path="/student/flashcards/play/:id"
+            element={<FlashcardPlayer />}
+          />
+          <Route path="/student/flashcards/ai" element={<AIFlashcard />} />
         </Route>
       </Route>
     </Routes>

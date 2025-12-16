@@ -3,24 +3,30 @@ import Flash from "../models/Flashcard.js";
 // ➕ Create Flashcard
 export const createFlashcard = async (req, res) => {
   try {
-    const { question, answer, category } = req.body;
+    const { title, cards } = req.body;
 
-    if (!question || !answer || !category) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!title || !cards || cards.length === 0) {
+      return res.status(400).json({ message: "Title & cards are required" });
     }
 
-    const newFlashcard = new Flash({
+    if (cards.some((c) => !c.question || !c.answer)) {
+      return res.status(400).json({
+        message: "Each card must have question & answer",
+      });
+    }
+
+    const flashcardSet = new Flash({
       user: req.user.id,
-      question,
-      answer,
-      category,
+      title,
+      cards, // array of Q&A
+      isAIgenerated: true,
     });
 
-    await newFlashcard.save();
+    await flashcardSet.save();
 
     res.status(201).json({
-      message: "Flashcard created successfully",
-      flashcard: newFlashcard,
+      message: "Flashcard set created",
+      flashcard: flashcardSet,
     });
   } catch (error) {
     res.status(500).json({
@@ -84,6 +90,27 @@ export const deleteFlashcard = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error deleting flashcard",
+      error: error.message,
+    });
+  }
+};
+
+// 🔍 Get single flashcard by ID
+export const getFlashcardById = async (req, res) => {
+  try {
+    const flashcard = await Flash.findOne({
+      _id: req.params.id,
+      user: req.user.id,
+    });
+
+    if (!flashcard) {
+      return res.status(404).json({ message: "Flashcard not found" });
+    }
+
+    res.status(200).json(flashcard);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching flashcard",
       error: error.message,
     });
   }
