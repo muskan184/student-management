@@ -1,7 +1,5 @@
-/* --- STUDENT SIDEBAR WITH DROPDOWN MENUS --- */
-
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import { AiFillHome } from "react-icons/ai";
@@ -16,19 +14,23 @@ import { PiRobotBold } from "react-icons/pi";
 
 import { useAuth } from "../../context/AuthContext";
 
-export const LeftNavBar = ({ setShowLogoutModal, isOpen, setIsOpen }) => {
+export const LeftNavBar = ({ isOpen, setIsOpen }) => {
   const [openMenu, setOpenMenu] = useState(null);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-  // ⛔ If no user → don't render sidebar
-  if (!user) {
-    return null;
-  }
+  // 🔐 If not logged in, hide sidebar
+  if (!user) return null;
 
   const role = user?.role?.toLowerCase();
 
   const toggleDropdown = (menu) => {
     setOpenMenu(openMenu === menu ? null : menu);
+  };
+
+  const handleLogout = () => {
+    logout(); // remove token + set user null
+    navigate("/login"); // redirect to login
   };
 
   return (
@@ -46,7 +48,6 @@ export const LeftNavBar = ({ setShowLogoutModal, isOpen, setIsOpen }) => {
           </span>
         )}
 
-        {/* Collapse Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="p-2 rounded hover:bg-gray-100"
@@ -131,7 +132,14 @@ export const LeftNavBar = ({ setShowLogoutModal, isOpen, setIsOpen }) => {
             </>
           )}
 
-          {/* Edit Profile */}
+          <NavItem
+            to="/teacher/questions"
+            text="Forum Questions"
+            isOpen={isOpen}
+            icon={<RiQuestionAnswerLine />}
+          />
+
+          {/* Profile */}
           <NavItem
             to="/student/profile"
             text="Edit Profile"
@@ -142,8 +150,8 @@ export const LeftNavBar = ({ setShowLogoutModal, isOpen, setIsOpen }) => {
           {/* LOGOUT */}
           <li className="pt-4 border-t">
             <div
-              onClick={() => setShowLogoutModal(true)}
-              className={`flex items-center p-2 cursor-pointer text-red-500 ${
+              onClick={handleLogout}
+              className={`flex items-center p-2 cursor-pointer text-red-500 hover:bg-red-50 rounded ${
                 isOpen ? "gap-3" : "justify-center"
               }`}
             >

@@ -12,6 +12,11 @@ const answerSchema = new mongoose.Schema({
     enum: ["AI", "student", "teacher"],
     default: "student",
   },
+  isBest: {
+    type: Boolean,
+    default: false,
+  },
+
   content: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });

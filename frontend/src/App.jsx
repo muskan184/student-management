@@ -22,6 +22,18 @@ import FlashcardList from "./pages/student/flashcards/FlashcardList";
 import CreateFlashcard from "./pages/student/flashcards/CreateFlashcard";
 import FlashcardPlayer from "./pages/student/flashcards/FlashcardPlayer";
 import AIFlashcard from "./pages/student/flashcards/AIFlashcard";
+import EditFlashcard from "./pages/student/flashcards/EditFlashcard";
+import PlannerList from "./pages/student/planner/PlannerList";
+import CreatePlanner from "./pages/student/planner/CreatePlanner";
+import EditPlanner from "./pages/student/planner/EditPlanner";
+import AskQuestion from "./pages/student/forum/AskQuestion";
+import ForumHome from "./pages/student/forum/ForumHome";
+import QuestionList from "./pages/student/forum/QuestionList";
+import QuestionDetail from "./pages/student/forum/QuestionDetail";
+import AIChat from "./pages/student/ai/AIChat";
+import AIHistory from "./pages/student/ai/AIHistory";
+import TeacherQuestions from "./pages/teacher/TeacherQuestion";
+import TeacherQuestionOpen from "./pages/teacher/TeacherQuestionOpen";
 
 export default function App() {
   return (
@@ -99,6 +111,26 @@ export default function App() {
             element={<FlashcardPlayer />}
           />
           <Route path="/student/flashcards/ai" element={<AIFlashcard />} />
+          <Route
+            path="/student/flashcards/edit/:id"
+            element={<EditFlashcard />}
+          />
+          <Route path="/student/planner" element={<PlannerList />} />
+          <Route path="/student/planner/add-task" element={<CreatePlanner />} />
+          <Route path="/student/planner/edit/:id" element={<EditPlanner />} />
+          <Route path="/student/questions/ask" element={<AskQuestion />} />
+          <Route path="/student/questions" element={<ForumHome />} />
+          <Route path="/student/forum" element={<QuestionList />} />
+          <Route path="/student/qa/ask" element={<AskQuestion />} />
+          <Route path="/student/forum/:id" element={<QuestionDetail />} />
+          <Route path="/student/ai" element={<AIChat />} />
+          <Route path="/student/ai-chat/:id" element={<AIChat />} />
+          <Route path="/student/ai-history" element={<AIHistory />} />
+          <Route path="/teacher/questions" element={<TeacherQuestions />} />
+          <Route
+            path="/teacher/question/:id"
+            element={<TeacherQuestionOpen />}
+          />
         </Route>
       </Route>
     </Routes>

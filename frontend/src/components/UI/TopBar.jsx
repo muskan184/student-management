@@ -4,7 +4,7 @@ import { DarkLightToggleButton } from "./DarkLightToggleButton";
 import { ColorPiker } from "./ColorPicker";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { FaUser } from "react-icons/fa";
+import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { FiSettings } from "react-icons/fi";
 import { RiLogoutBoxRLine } from "react-icons/ri";
@@ -14,7 +14,7 @@ import { useAuth } from "../../context/AuthContext";
 
 export const TopBar = ({ setShowLogoutModal }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const [isDarkMode, setIsDarkMode] = useState(
     () => localStorage.getItem("theme") === "dark"
@@ -33,6 +33,11 @@ export const TopBar = ({ setShowLogoutModal }) => {
     hidden: { opacity: 0, y: -10 },
     show: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -10 },
+  };
+
+  const handleLogout = () => {
+    logout(); // remove token + set user null
+    navigate("/login"); // redirect to login
   };
 
   return (
@@ -117,20 +122,22 @@ export const TopBar = ({ setShowLogoutModal }) => {
                   )}
 
                   {/* EDIT PROFILE */}
-                  <DropdownItem to="/edit-profile" icon={<FiSettings />}>
+                  <DropdownItem to="/student/profile" icon={<FiSettings />}>
                     Edit Profile
                   </DropdownItem>
 
                   {/* LOGOUT */}
-                  <button
-                    onClick={() => {
-                      setShowLogoutModal(true);
-                      setIsOpen(false);
-                    }}
-                    className="menu-item text-red-600 flex items-center gap-2 p-2 hover:bg-red-50 rounded-md"
-                  >
-                    <RiLogoutBoxRLine /> Logout
-                  </button>
+
+                  {/* LOGOUT */}
+                  <div className="border-t mt-2 pt-2">
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-3 p-2 text-red-500 hover:bg-red-50 rounded-md transition"
+                    >
+                      <FaSignOutAlt />
+                      Logout
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
