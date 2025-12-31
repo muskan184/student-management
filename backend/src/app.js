@@ -11,6 +11,7 @@ import questionRouter from "./routes/questionRoutes.js";
 import answerRouter from "./routes/answerRoutes.js";
 import aiResponseRouter from "./routes/aiResponseRoutes.js";
 import flashRouter from "./routes/flashcardRoutes.js";
+import notificationRouter from "./routes/notificationRoutes.js";
 import path from "path";
 
 dotenv.config();
@@ -35,6 +36,7 @@ app.use("/api/questions", questionRouter);
 app.use("/api/flashcards", flashRouter);
 app.use("/api/answers", answerRouter);
 app.use("/api/aiResponse", aiResponseRouter);
+app.use("/api/notifications", notificationRouter);
 
 connectDB();
 

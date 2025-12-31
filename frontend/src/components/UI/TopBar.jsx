@@ -1,18 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { DarkLightToggleButton } from "./DarkLightToggleButton";
 import { ColorPiker } from "./ColorPicker";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { FiSettings } from "react-icons/fi";
-import { RiLogoutBoxRLine } from "react-icons/ri";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
 import { useAuth } from "../../context/AuthContext";
+import { fetchMyNotifications } from "../../api/notificationApi";
 
-export const TopBar = ({ setShowLogoutModal }) => {
+export const TopBar = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -20,6 +20,9 @@ export const TopBar = ({ setShowLogoutModal }) => {
     () => localStorage.getItem("theme") === "dark"
   );
   const [isOpen, setIsOpen] = useState(false);
+
+  // 🔔 unread count only
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const role = user?.role;
   const isStudent = role === "student";
@@ -29,16 +32,25 @@ export const TopBar = ({ setShowLogoutModal }) => {
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
   const toggleDropdown = () => setIsOpen(!isOpen);
 
-  const dropVariants = {
-    hidden: { opacity: 0, y: -10 },
-    show: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 },
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
-  const handleLogout = () => {
-    logout(); // remove token + set user null
-    navigate("/login"); // redirect to login
+  // 🔔 Load unread count
+  const loadNotifications = async () => {
+    if (!user) return;
+    try {
+      const data = await fetchMyNotifications();
+      setUnreadCount(data.unreadCount || 0);
+    } catch (err) {
+      console.log("Notification error", err);
+    }
   };
+
+  useEffect(() => {
+    loadNotifications();
+  }, [user]);
 
   return (
     <motion.div
@@ -49,23 +61,32 @@ export const TopBar = ({ setShowLogoutModal }) => {
     >
       <div className="flex-1"></div>
 
-      {/* RIGHT SIDE AREA */}
       <div className="ml-4 flex gap-4 items-center relative">
+        {/* 🔔 NOTIFICATION BELL */}
         {user && (
-          <IoNotificationsOutline className="text-2xl cursor-pointer text-gray-600 hover:text-[var(--primary-color)] transition" />
+          <div
+            className="relative cursor-pointer"
+            onClick={() => navigate("/notifications")}
+          >
+            <IoNotificationsOutline className="text-2xl text-gray-600 hover:text-[var(--primary-color)]" />
+
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </div>
         )}
 
         <ColorPiker />
-
         <DarkLightToggleButton
           toggleDarkMode={toggleDarkMode}
           isDarkMode={isDarkMode}
         />
 
-        {/* ---- USER LOGGED IN ---- */}
+        {/* USER AREA */}
         {user ? (
           <div className="relative flex items-center gap-3">
-            {/* PROFILE CLICK → OPEN ROLE-BASED PROFILE */}
             <button
               onClick={() => {
                 if (isStudent) navigate("/student/profile");
@@ -84,7 +105,6 @@ export const TopBar = ({ setShowLogoutModal }) => {
               </span>
             </button>
 
-            {/* 3 DOTS MENU */}
             <button
               onClick={toggleDropdown}
               className="p-2 rounded-full hover:bg-gray-200 transition"
@@ -92,67 +112,50 @@ export const TopBar = ({ setShowLogoutModal }) => {
               <BsThreeDotsVertical className="text-xl text-gray-600" />
             </button>
 
-            {/* DROPDOWN */}
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  variants={dropVariants}
-                  initial="hidden"
-                  animate="show"
-                  exit="exit"
-                  className="absolute right-0 mt-12 w-56 bg-white shadow-xl rounded-md p-2 border z-50 top-0"
-                >
-                  {/* ROLE-BASED DASHBOARD LINKS */}
-                  {isStudent && (
-                    <DropdownItem to="/student/dashboard" icon={<FaUser />}>
-                      Student Dashboard
-                    </DropdownItem>
-                  )}
-
-                  {isTeacher && (
-                    <DropdownItem to="/teacher/dashboard" icon={<FaUser />}>
-                      Teacher Dashboard
-                    </DropdownItem>
-                  )}
-
-                  {isAdmin && (
-                    <DropdownItem to="/admin/dashboard" icon={<FaUser />}>
-                      Admin Dashboard
-                    </DropdownItem>
-                  )}
-
-                  {/* EDIT PROFILE */}
-                  <DropdownItem to="/student/profile" icon={<FiSettings />}>
-                    Edit Profile
+            {isOpen && (
+              <div className="absolute right-0 mt-12 w-56 bg-white shadow-xl rounded-md p-2 border z-50 top-0">
+                {isStudent && (
+                  <DropdownItem to="/student/dashboard" icon={<FaUser />}>
+                    Student Dashboard
                   </DropdownItem>
+                )}
+                {isTeacher && (
+                  <DropdownItem to="/teacher/dashboard" icon={<FaUser />}>
+                    Teacher Dashboard
+                  </DropdownItem>
+                )}
+                {isAdmin && (
+                  <DropdownItem to="/admin/dashboard" icon={<FaUser />}>
+                    Admin Dashboard
+                  </DropdownItem>
+                )}
 
-                  {/* LOGOUT */}
+                <DropdownItem to="/student/profile" icon={<FiSettings />}>
+                  Edit Profile
+                </DropdownItem>
 
-                  {/* LOGOUT */}
-                  <div className="border-t mt-2 pt-2">
-                    <button
-                      onClick={handleLogout}
-                      className="flex w-full items-center gap-3 p-2 text-red-500 hover:bg-red-50 rounded-md transition"
-                    >
-                      <FaSignOutAlt />
-                      Logout
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                <div className="border-t mt-2 pt-2">
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 p-2 text-red-500 hover:bg-red-50 rounded-md transition"
+                  >
+                    <FaSignOutAlt />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
-          // ---- NO USER → SHOW LOGIN/SIGNUP ----
           <div className="flex gap-2">
             <NavLink to="/login">
-              <button className="px-4 py-2 bg-[var(--primary-color)] text-white rounded-full shadow hover:shadow-md transition">
+              <button className="px-4 py-2 bg-[var(--primary-color)] text-white rounded-full shadow">
                 Login
               </button>
             </NavLink>
 
             <NavLink to="/signup">
-              <button className="px-4 py-2 border border-[var(--primary-color)] text-[var(--primary-color)] rounded-full shadow-sm hover:shadow-md transition">
+              <button className="px-4 py-2 border border-[var(--primary-color)] text-[var(--primary-color)] rounded-full">
                 Signup
               </button>
             </NavLink>
@@ -163,11 +166,10 @@ export const TopBar = ({ setShowLogoutModal }) => {
   );
 };
 
-/* --- REUSABLE DROPDOWN ITEM --- */
 const DropdownItem = ({ to, icon, children }) => (
   <NavLink
     to={to}
-    className="menu-item flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md text-gray-700 transition"
+    className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md text-gray-700 transition"
   >
     {icon} {children}
   </NavLink>

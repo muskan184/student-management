@@ -132,22 +132,33 @@ export const LeftNavBar = ({ isOpen, setIsOpen }) => {
             </>
           )}
 
-          <NavItem
-            to="/teacher/questions"
-            text="Forum Questions"
-            isOpen={isOpen}
-            icon={<RiQuestionAnswerLine />}
-          />
-
           {/* Profile */}
+          {role === "teacher" && (
+            <>
+              <NavItem
+                to="/teacher/dashboard"
+                text="Dashboard"
+                isOpen={isOpen}
+                icon={<AiFillHome />}
+              />
+
+              <NavItem
+                to="/teacher/questions"
+                text="Forum Questions"
+                isOpen={isOpen}
+                icon={<RiQuestionAnswerLine />}
+              />
+            </>
+          )}
+
+          {/* ================= COMMON ================= */}
           <NavItem
-            to="/student/profile"
+            to={role === "student" ? "/student/profile" : "/teacher/profile"}
             text="Edit Profile"
             isOpen={isOpen}
             icon={<FaUserEdit />}
           />
 
-          {/* LOGOUT */}
           <li className="pt-4 border-t">
             <div
               onClick={handleLogout}

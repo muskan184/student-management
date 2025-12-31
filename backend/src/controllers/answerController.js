@@ -1,4 +1,8 @@
+import User from "../models/User.js";
+import Notification from "../models/Notification.js";
+import Question from "../models/Question.js";
 import Answer from "../models/Answer.js";
+import { sendGlobalNotification } from "../utils/sendNotification.js";
 
 export const addAnswer = async (req, res) => {
   try {
@@ -8,6 +12,7 @@ export const addAnswer = async (req, res) => {
     if (!content)
       return res.status(400).json({ message: "Answer content is required" });
 
+    // 1️⃣ Create Answer
     const answer = await Answer.create({
       questionId,
       answeredBy: req.user._id,
@@ -15,12 +20,34 @@ export const addAnswer = async (req, res) => {
       content,
     });
 
+    // 2️⃣ Get question for message
+    const question = await Question.findById(questionId);
+
+    // 3️⃣ Get ALL users except who posted the answer
+    const users = await User.find({
+      _id: { $ne: req.user._id },
+    });
+
+    // 4️⃣ Create notifications for everyone
+    const notifications = users.map((u) => ({
+      user: u._id,
+      title: "New Answer",
+      message: `${req.user.name} answered a question`,
+      type: "answer",
+      questionId,
+      answerId: answer._id,
+      isRead: false,
+    }));
+
+    await Notification.insertMany(notifications);
+
     res.status(201).json({
       success: true,
-      message: "Answer added successfully",
+      message: "Answer added & notifications sent",
       answer,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -29,12 +56,12 @@ export const getAnswers = async (req, res) => {
   try {
     const { questionId } = req.params;
     const answers = await Answer.find({ questionId })
-      .populate("answeredBy", "name role")
+      .populate("answeredBy", "name role profilePic")
       .sort({ createdAt: -1 });
     res.status(200).json({ success: true, answers });
   } catch (error) {
     console.error("Error fetching answers:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 export const deleteAnswer = async (req, res) => {
@@ -113,8 +140,8 @@ export const markBestAnswer = async (req, res) => {
         .json({ message: "Only teacher can select best answer" });
     }
 
-    const { answerId } = req.params;
-    const answer = await Answer.findById(answerId);
+    const { id } = req.params;
+    const answer = await Answer.findById(id);
     if (!answer) {
       return res.status(404).json({ message: "Answer not found" });
     }
@@ -124,6 +151,14 @@ export const markBestAnswer = async (req, res) => {
 
     answer.isBest = true;
     await answer.save();
+
+    await sendGlobalNotification({
+      title: "Best Answer Selected",
+      message: `${req.user.firstName} selected a best answer`,
+      link: `/qa/${questionId}`,
+      actorId: req.user._id,
+      questionId,
+    });
 
     res.status(200).json({
       success: true,

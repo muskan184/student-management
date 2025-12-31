@@ -24,7 +24,7 @@ export default function AskQuestion() {
       setLoading(true);
       await createQuestion({ text });
       toast.success("Question posted successfully");
-      navigate("/student/qa");
+      navigate("/student/forum");
     } catch (error) {
       toast.error("Failed to post question");
     } finally {

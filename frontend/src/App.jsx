@@ -34,6 +34,7 @@ import AIChat from "./pages/student/ai/AIChat";
 import AIHistory from "./pages/student/ai/AIHistory";
 import TeacherQuestions from "./pages/teacher/TeacherQuestion";
 import TeacherQuestionOpen from "./pages/teacher/TeacherQuestionOpen";
+import NotificationsPage from "./pages/Notification";
 
 export default function App() {
   return (
@@ -131,6 +132,7 @@ export default function App() {
             path="/teacher/question/:id"
             element={<TeacherQuestionOpen />}
           />
+          <Route path="/notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
     </Routes>

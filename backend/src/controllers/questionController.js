@@ -1,6 +1,9 @@
 import Question from "../models/Question.js";
 import Answer from "../models/Answer.js";
 import genAI from "../config/openaiConfig.js";
+import { sendGlobalNotification } from "../utils/sendNotification.js";
+import User from "../models/User.js";
+import Notification from "../models/Notification.js";
 
 /* ================= CREATE QUESTION (already done) ================= */
 export const createQuestion = async (req, res) => {
@@ -31,13 +34,35 @@ export const createQuestion = async (req, res) => {
       content: aiText,
     });
 
+    // await sendGlobalNotification({
+    //   title: "New Question",
+    //   message: `${req.user.name} posted a new question`,
+    //   link: `/qa/${question._id}`,
+    //   actorId: req.user._id,
+    //   type: "question",
+    //   questionId: question._id,
+    // });
+    const users = await User.find({
+      _id: { $ne: req.user._id },
+    });
+    const notifications = users.map((u) => ({
+      user: u._id,
+      title: "new question",
+      message: `${req.user.name} posted a new question`,
+      type: "question",
+      questionId: question._id,
+      isRead: false,
+    }));
+
+    await Notification.insertMany(notifications);
+
     res.status(201).json({
       success: true,
       message: "Question created",
       questionId: question._id,
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: error.message || "Internal server error" });
   }
 };
 
@@ -45,7 +70,7 @@ export const createQuestion = async (req, res) => {
 export const getAllQuestions = async (req, res) => {
   try {
     const questions = await Question.find()
-      .populate("askedBy", "name role")
+      .populate("askedBy", "name role profilePic")
       .sort({ createdAt: -1 });
 
     res.status(200).json({

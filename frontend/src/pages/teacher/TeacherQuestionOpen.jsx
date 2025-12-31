@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Pencil, Trash2, Star } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Pencil, Trash2, Star, Save, X } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { fetchQuestionById } from "../../api/questionApi";
 import {
@@ -14,18 +15,20 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function TeacherQuestionOpen() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
-  console.log("Current User 👉", user?.role);
 
   const [question, setQuestion] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [content, setContent] = useState("");
-  const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [id]);
 
   const loadData = async () => {
     try {
@@ -33,46 +36,60 @@ export default function TeacherQuestionOpen() {
       const a = await fetchAnswers(id);
       setQuestion(q.question);
       setAnswers(a.answers);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      toast.error("Failed to load data");
+      navigate(-1);
     }
   };
 
-  // Post or Update Answer
   const submitAnswer = async () => {
-    if (!content.trim()) return alert("Answer cannot be empty");
+    if (!content.trim()) return toast.error("Answer cannot be empty");
 
     try {
       setLoading(true);
-
-      if (editId) {
-        await updateAnswer(editId, { content });
-      } else {
-        await addAnswer(id, { content });
-      }
-
+      await addAnswer(id, { content });
+      toast.success("Answer posted");
       setContent("");
-      setEditId(null);
-      await loadData();
-    } catch (err) {
-      alert(err.response?.data?.message || "Error saving answer");
+      loadData();
+    } catch {
+      toast.error("Failed to post answer");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (aid) => {
+  const handleDelete = async (answerId) => {
     if (!window.confirm("Delete this answer?")) return;
-    await deleteAnswer(aid);
-    loadData();
+    try {
+      await deleteAnswer(answerId);
+      toast.success("Answer deleted");
+      loadData();
+    } catch {
+      toast.error("Delete failed");
+    }
+  };
+
+  const handleUpdate = async (answerId) => {
+    if (!editText.trim()) return toast.error("Answer cannot be empty");
+
+    try {
+      await updateAnswer(answerId, { content: editText });
+      toast.success("Answer updated");
+      setEditingId(null);
+      setEditText("");
+      loadData();
+    } catch {
+      toast.error("Update failed");
+    }
   };
 
   const handleBest = async (answerId) => {
     try {
       await markBestAnswer(answerId);
+      toast.success("Marked as best");
       loadData();
-    } catch (err) {
-      alert("Only teacher can select best answer");
+    } catch {
+      toast.error("Only teacher can select best");
     }
   };
 
@@ -80,78 +97,137 @@ export default function TeacherQuestionOpen() {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Question */}
-      <div className="bg-white p-5 rounded shadow mb-6">
-        <h1 className="text-xl font-bold">{question.text}</h1>
-        <p className="text-sm text-gray-500">
-          Asked by {question.askedBy?.name} ({question.askedBy?.role})
-        </p>
+      {/* QUESTION */}
+      <div className="bg-white p-5 rounded shadow mb-6 flex gap-4">
+        <img
+          src={question.askedBy?.avatar || "/default-avatar.png"}
+          className="w-12 h-12 rounded-full object-cover cursor-pointer"
+          onClick={() => navigate(`/profile/${question.askedBy?._id}`)}
+        />
+
+        <div>
+          <h1 className="text-xl font-bold">{question.text}</h1>
+          <p className="text-sm text-gray-500">
+            Asked by{" "}
+            <span
+              onClick={() => navigate(`/profile/${question.askedBy?._id}`)}
+              className="text-blue-600 cursor-pointer hover:underline"
+            >
+              {question.askedBy?.name}
+            </span>{" "}
+            <span className="ml-1 px-2 py-0.5 text-xs bg-gray-200 rounded">
+              {question.askedBy?.role}
+            </span>
+          </p>
+        </div>
       </div>
 
-      {/* Answers */}
+      {/* ANSWERS */}
       <div className="mb-6">
-        <h2 className="text-lg font-semiboldf mb-3">All Answers</h2>
-
-        {answers.length === 0 && (
-          <p className="text-gray-500">No answers yet</p>
-        )}
+        <h2 className="text-lg font-semibold mb-3">All Answers</h2>
 
         {answers.map((a) => {
-          console.log("Answer 👉", a._id);
           const answerUserId =
             typeof a.answeredBy === "string" ? a.answeredBy : a.answeredBy?._id;
 
           const isOwner = String(answerUserId) === String(user?.id);
+          const isEditing = editingId === a._id;
 
           return (
             <div
               key={a._id}
-              className={`bg-white p-4 rounded shadow mb-3 relative border-2 ${
+              className={`bg-white p-4 rounded shadow mb-3 border-2 ${
                 a.isBest ? "border-yellow-400" : "border-transparent"
               }`}
             >
               {a.isBest && (
-                <div className="absolute -top-3 -right-3 bg-yellow-400 text-white px-2 py-1 rounded text-xs">
-                  ⭐ Best
+                <div className="text-yellow-500 font-semibold mb-2">
+                  ⭐ Best Answer
                 </div>
               )}
 
-              <p className="text-gray-800">{a.content}</p>
+              {/* USER */}
+              <div className="flex gap-3 items-center mb-2">
+                <img
+                  src={a.answeredBy?.avatar || "/default-avatar.png"}
+                  className="w-10 h-10 rounded-full cursor-pointer"
+                  onClick={() => navigate(`/profile/${a.answeredBy?._id}`)}
+                />
+                <div>
+                  <p
+                    onClick={() => navigate(`/profile/${a.answeredBy?._id}`)}
+                    className="font-semibold text-blue-600 cursor-pointer"
+                  >
+                    {a.answeredBy?.name || "AI"}
+                  </p>
+                  <span className="text-xs bg-gray-200 px-2 py-0.5 rounded">
+                    {a.answeredBy?.role || "AI"}
+                  </span>
+                </div>
+              </div>
 
-              <p className="text-sm text-gray-500 mt-1">
-                — {a.answeredBy?.name} ({a.answeredBy?.role})
-              </p>
+              {/* TEXT */}
+              {isEditing ? (
+                <textarea
+                  className="w-full border p-2 rounded"
+                  rows="3"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                />
+              ) : (
+                <p className="text-gray-800 whitespace-pre-line">{a.content}</p>
+              )}
 
-              <div className="flex gap-4 mt-2 items-center">
-                {/* Teacher can mark best */}
+              {/* ACTIONS */}
+              <div className="flex gap-4 mt-3 items-center">
                 {user?.role === "teacher" && (
                   <button
                     onClick={() => handleBest(a._id)}
-                    className={`${
-                      a.isBest ? "text-yellow-400" : "text-gray-400"
-                    }`}
+                    className={a.isBest ? "text-yellow-400" : "text-gray-400"}
                   >
                     <Star fill={a.isBest ? "gold" : "none"} />
                   </button>
                 )}
+
                 {isOwner && (
                   <>
-                    <button
-                      onClick={() => {
-                        setContent(a.content);
-                        setEditId(a._id);
-                      }}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <Pencil size={18} />
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(a._id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    {isEditing ? (
+                      <>
+                        <button
+                          onClick={() => handleUpdate(a._id)}
+                          className="text-green-600"
+                        >
+                          <Save size={18} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingId(null);
+                            setEditText("");
+                          }}
+                          className="text-gray-500"
+                        >
+                          <X size={18} />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            setEditingId(a._id);
+                            setEditText(a.content);
+                          }}
+                          className="text-blue-600"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(a._id)}
+                          className="text-red-500"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -160,12 +236,9 @@ export default function TeacherQuestionOpen() {
         })}
       </div>
 
-      {/* Answer Box */}
+      {/* ADD ANSWER */}
       <div className="bg-white p-4 rounded shadow">
-        <h3 className="font-semibold mb-2">
-          {editId ? "Edit Your Answer" : "Your Answer"}
-        </h3>
-
+        <h3 className="font-semibold mb-2">Your Answer</h3>
         <textarea
           className="w-full border p-3 rounded"
           rows="4"
@@ -179,7 +252,7 @@ export default function TeacherQuestionOpen() {
           disabled={loading}
           className="mt-3 bg-blue-600 text-white px-4 py-2 rounded"
         >
-          {editId ? "Update Answer" : "Post Answer"}
+          Post Answer
         </button>
       </div>
     </div>

@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-
 import { Plus, Eye } from "lucide-react";
 import { fetchQuestions } from "../../../api/questionApi";
 
 export default function QuestionList() {
   const navigate = useNavigate();
 
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState([]); // must be array
   const [loading, setLoading] = useState(true);
 
   /* ================= FETCH QUESTIONS ================= */
@@ -19,8 +18,15 @@ export default function QuestionList() {
   const loadQuestions = async () => {
     try {
       const data = await fetchQuestions();
-      setQuestions(data);
+
+      console.log("API Response:", data);
+
+      // 🔥 VERY IMPORTANT FIX
+      // Backend is sending: { success, questions }
+      // We only store the array
+      setQuestions(Array.isArray(data?.questions) ? data.questions : []);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to load questions");
     } finally {
       setLoading(false);
@@ -57,12 +63,15 @@ export default function QuestionList() {
               <div>
                 <h3 className="font-medium">{q.text}</h3>
                 <p className="text-xs text-gray-500">
-                  Asked on {new Date(q.createdAt).toLocaleDateString()}
+                  Asked on{" "}
+                  {q.createdAt
+                    ? new Date(q.createdAt).toLocaleDateString()
+                    : "N/A"}
                 </p>
               </div>
 
               <button
-                onClick={() => navigate(`/student/qa/${q._id}`)}
+                onClick={() => navigate(`/student/forum/${q._id}`)}
                 className="flex items-center gap-1 text-blue-600"
               >
                 <Eye size={16} /> View

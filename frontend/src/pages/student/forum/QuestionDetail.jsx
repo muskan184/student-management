@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useOutletContext } from "react-router-dom";
 import toast from "react-hot-toast";
-import { ArrowLeft, Send, Trash2, Edit } from "lucide-react";
-import { useOutletContext } from "react-router-dom";
+import { ArrowLeft, Send, Trash2, Edit, XCircle } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { fetchQuestionById } from "../../../api/questionApi";
-import {
-  addAnswer,
-  deleteAnswer,
-  fetchAnswers,
-  updateAnswer,
-} from "../../../api/answerApi";
+import { addAnswer, deleteAnswer, updateAnswer } from "../../../api/answerApi";
+import { PiFloppyDisk } from "react-icons/pi";
 
 export default function QuestionDetail() {
   const { id } = useParams();
@@ -26,17 +21,17 @@ export default function QuestionDetail() {
   const [editingAnswerId, setEditingAnswerId] = useState(null);
   const [editAnswerText, setEditAnswerText] = useState("");
 
-  /* ================= FETCH DATA ================= */
+  /* ================= FETCH QUESTION & ANSWERS ================= */
   useEffect(() => {
     loadData();
   }, [id]);
 
   const loadData = async () => {
-    setLoading(true);
     try {
-      const q = await fetchQuestionById(id);
-      setQuestion(q.question);
-      setAnswers(q.answers || []); // backend se answers hi aa rahe hain
+      setLoading(true);
+      const res = await fetchQuestionById(id);
+      setQuestion(res.question);
+      setAnswers(res.answers || []);
     } catch (err) {
       toast.error("Failed to load question");
       navigate(-1);
@@ -61,14 +56,13 @@ export default function QuestionDetail() {
       toast.success("Answer added");
       setContent("");
       loadData();
-    } catch (err) {
+    } catch {
       toast.error("Failed to add answer");
-      console.error(err);
     }
   };
 
   /* ================= UPDATE ANSWER ================= */
-  const handleAnswerUpdate = async (answerId) => {
+  const handleUpdate = async (answerId) => {
     if (!editAnswerText.trim()) return toast.error("Answer cannot be empty");
 
     try {
@@ -77,30 +71,27 @@ export default function QuestionDetail() {
       setEditingAnswerId(null);
       setEditAnswerText("");
       loadData();
-    } catch (err) {
+    } catch {
       toast.error("Update failed");
-      console.error(err);
     }
   };
 
   /* ================= DELETE ANSWER ================= */
-  const handleAnswerDelete = async (answerId) => {
+  const handleDelete = async (answerId) => {
     if (!window.confirm("Delete this answer?")) return;
 
     try {
       await deleteAnswer(answerId);
       toast.success("Answer deleted");
       loadData();
-    } catch (err) {
+    } catch {
       toast.error("Delete failed");
-      console.error(err);
     }
   };
 
   if (loading) return <p className="p-6">Loading...</p>;
   if (!question) return null;
 
-  /* ================= UI ================= */
   return (
     <div className="p-6 min-h-screen bg-gray-50">
       {/* HEADER */}
@@ -114,7 +105,7 @@ export default function QuestionDetail() {
       {/* QUESTION */}
       <div className="bg-white p-5 rounded shadow mb-6">
         <h2 className="font-semibold text-lg mb-2">Question</h2>
-        <p className="text-gray-700">{question.text || "No question text"}</p>
+        <p className="text-gray-700">{question.text}</p>
       </div>
 
       {/* ANSWERS */}
@@ -126,12 +117,13 @@ export default function QuestionDetail() {
         ) : (
           answers.map((ans) => {
             const isOwner =
-              ans.answeredBy?._id?.toString() === user?._id?.toString() &&
-              ans.role !== "AI";
+              ans.answeredBy?._id === user?.id && ans.role !== "AI";
+
+            const isEditing = editingAnswerId === ans._id;
 
             return (
               <div key={ans._id} className="bg-white p-4 rounded shadow">
-                <div className="flex justify-between items-start mb-1">
+                <div className="flex justify-between mb-2">
                   <p className="text-sm text-gray-500">
                     {ans.answeredBy?.name ||
                       (ans.role === "AI" ? "AI" : "Anonymous")}
@@ -139,40 +131,53 @@ export default function QuestionDetail() {
 
                   {isOwner && (
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setEditingAnswerId(ans._id);
-                          setEditAnswerText(ans.content);
-                        }}
-                        className="text-blue-600"
-                      >
-                        <Edit size={14} />
-                      </button>
-
-                      <button
-                        onClick={() => handleAnswerDelete(ans._id)}
-                        className="text-red-500"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      {isEditing ? (
+                        <>
+                          <button
+                            onClick={() => handleUpdate(ans._id)}
+                            className="text-green-600"
+                          >
+                            <PiFloppyDisk size={16} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingAnswerId(null);
+                              setEditAnswerText("");
+                            }}
+                            className="text-gray-500"
+                          >
+                            <XCircle size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => {
+                              setEditingAnswerId(ans._id);
+                              setEditAnswerText(ans.content);
+                            }}
+                            className="text-blue-600"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(ans._id)}
+                            className="text-red-500"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
 
-                {editingAnswerId === ans._id ? (
-                  <>
-                    <textarea
-                      value={editAnswerText}
-                      onChange={(e) => setEditAnswerText(e.target.value)}
-                      className="w-full border p-2 rounded"
-                    />
-                    <button
-                      onClick={() => handleAnswerUpdate(ans._id)}
-                      className="mt-2 bg-green-600 text-white px-3 py-1 rounded"
-                    >
-                      Save
-                    </button>
-                  </>
+                {isEditing ? (
+                  <textarea
+                    value={editAnswerText}
+                    onChange={(e) => setEditAnswerText(e.target.value)}
+                    className="w-full border p-2 rounded"
+                  />
                 ) : (
                   <p className="text-gray-700 whitespace-pre-line">
                     {ans.content}
@@ -194,6 +199,7 @@ export default function QuestionDetail() {
           placeholder="Write your answer..."
           className="w-full border px-3 py-2 rounded resize-none"
         />
+
         <div className="mt-4 flex justify-end">
           <button
             type="submit"
