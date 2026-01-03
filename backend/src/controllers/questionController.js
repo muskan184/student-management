@@ -94,7 +94,7 @@ export const getQuestionById = async (req, res) => {
       return res.status(404).json({ message: "Question not found" });
 
     const answers = await Answer.find({ questionId: question._id })
-      .populate("answeredBy", "name role _id")
+      .populate("answeredBy")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
