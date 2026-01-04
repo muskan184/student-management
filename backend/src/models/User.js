@@ -42,6 +42,51 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    phone: {
+      type: String,
+      trim: true,
+    },
+
+    dob: {
+      type: Date,
+    },
+
+    address: {
+      type: String,
+      trim: true,
+    },
+
+    // Student-specific fields
+    course: {
+      type: String,
+      trim: true,
+    },
+
+    branch: {
+      type: String,
+      trim: true,
+    },
+
+    semester: {
+      type: String,
+      trim: true,
+    },
+
+    // Teacher-specific fields
+    subject: {
+      type: String,
+      trim: true,
+    },
+
+    qualification: {
+      type: String,
+      trim: true,
+    },
+
+    experience: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: true,

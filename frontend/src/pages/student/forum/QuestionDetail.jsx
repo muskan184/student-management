@@ -122,18 +122,26 @@ export default function QuestionDetail() {
 
             return (
               <div
-                key={ans._id}
+                key={ans?._id}
                 className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm"
               >
                 {/* Header */}
                 <div className="flex  justify-between  items-start mb-3">
-                  <Link to={`/teacher/profile/${ans.answeredBy._id}`} className="flex relative group items-center cursor-pointer hover:bg-gray-200 py-2 px-3 rounded-md gap-3">
+                  <Link to={ans.role !== "AI" ? `/profile/${ans.answeredBy?._id}` : ""} className="flex relative group items-center cursor-pointer hover:bg-gray-200 py-2 px-3 rounded-md gap-3">
 
-                    <img
-                      src={ans?.answeredBy?.profilePic}
+                  {
+                    ans?.role !== "AI" ? 
+                      <img
+                      src={ans?.answeredBy?.profilePic || "/default-avatar.png"}
                       alt="User avatar"
                       className="w-10 h-10 ring-offset-1 ring-2 ring-blue-500 rounded-full object-cover"
-                    />
+                    /> : (
+                      <div className="w-10 h-10 ring-offset-1 ring-2 text-gray-950 font-semibold ring-blue-500 bg-blue-200 rounded-full flex items-center justify-center">
+                        AI
+                      </div>
+                    )
+                  }
+                  
 
                     <div className="leading-tight">
                       <p className="text-sm font-medium text-gray-800 hover:underline">
@@ -144,7 +152,7 @@ export default function QuestionDetail() {
                     </div>
 
                     <div className="absolute z-20 top-full left-0 mt-2 hidden group-hover:block">
-                      <TeacherMiniCard
+                      <MiniCard
                         teacher={ans.answeredBy}
                         isFollowing={false}
                         onFollow={() => console.log("follow")}
@@ -246,7 +254,7 @@ export default function QuestionDetail() {
 }
 
 
-const TeacherMiniCard = ({ teacher, isFollowing, onFollow }) => {
+const MiniCard = ({ teacher, isFollowing, onFollow }) => {
   if (!teacher) return null;
 
   return (
@@ -301,7 +309,7 @@ const TeacherMiniCard = ({ teacher, isFollowing, onFollow }) => {
         </button>
 
         <Link
-          to={`/teacher/profile/${teacher._id}`}
+          to={`/profile/${teacher._id}`}
           className="flex-1 text-center border text-sm py-1.5 rounded hover:bg-gray-100"
         >
           View

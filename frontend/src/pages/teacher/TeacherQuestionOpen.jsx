@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Pencil, Trash2, Star, Save, X } from "lucide-react";
 import toast from "react-hot-toast";
+import { Link } from 'react-router-dom'
 
 import { fetchQuestionById } from "../../api/questionApi";
 import {
@@ -136,9 +137,8 @@ export default function TeacherQuestionOpen() {
           return (
             <div
               key={a._id}
-              className={`bg-white p-4 rounded shadow mb-3 border-2 ${
-                a.isBest ? "border-yellow-400" : "border-transparent"
-              }`}
+              className={`bg-white p-4 rounded shadow mb-3 border-2 ${a.isBest ? "border-yellow-400" : "border-transparent"
+                }`}
             >
               {a.isBest && (
                 <div className="text-yellow-500 font-semibold mb-2">
@@ -148,22 +148,43 @@ export default function TeacherQuestionOpen() {
 
               {/* USER */}
               <div className="flex gap-3 items-center mb-2">
-                <img
-                  src={a.answeredBy?.avatar || "/default-avatar.png"}
-                  className="w-10 h-10 rounded-full cursor-pointer"
-                  onClick={() => navigate(`/profile/${a.answeredBy?._id}`)}
-                />
-                <div>
-                  <p
-                    onClick={() => navigate(`/profile/${a.answeredBy?._id}`)}
-                    className="font-semibold text-blue-600 cursor-pointer"
-                  >
-                    {a.answeredBy?.name || "AI"}
-                  </p>
-                  <span className="text-xs bg-gray-200 px-2 py-0.5 rounded">
-                    {a.answeredBy?.role || "AI"}
-                  </span>
-                </div>
+
+                <Link to={a.role !== "AI" ? `/profile/${a.answeredBy?._id}` : ""} className="flex relative group items-center cursor-pointer hover:bg-gray-200 py-2 px-3 rounded-md gap-3">
+
+                  {
+                    a?.role !== "AI" ?
+                      <img
+                        src={a?.answeredBy?.profilePic || "/default-avatar.png"}
+                        alt="User avatar"
+                        className="w-10 h-10 ring-offset-1 ring-2 ring-blue-500 rounded-full object-cover"
+                      /> : (
+                        <div className="w-10 h-10 ring-offset-1 ring-2 text-gray-950 font-semibold ring-blue-500 bg-blue-200 rounded-full flex items-center justify-center">
+                          AI
+                        </div>
+                      )
+                  }
+
+
+
+
+                  <div className="leading-tight">
+                    <p className="text-sm font-medium text-gray-800 hover:underline">
+                      {a.answeredBy?.name ||
+                        (a.role === "AI" ? "AI" : "Anonymous")}
+                    </p>
+                    <p className="text-xs text-gray-400">Answered by   <span className="text-xs bg-gray-200 px-2 py-0.5 rounded">
+                      {a.answeredBy?.role || "AI"}
+                    </span></p>
+                  </div>
+
+                  <div className="absolute z-20 top-full left-0 mt-2 hidden group-hover:block">
+                    <MiniCard
+                      answeredBy={a.answeredBy}
+                      isFollowing={false}
+                      onFollow={() => console.log("follow")}
+                    />
+                  </div>
+                </Link>
               </div>
 
               {/* TEXT */}
@@ -258,3 +279,71 @@ export default function TeacherQuestionOpen() {
     </div>
   );
 }
+
+
+
+const MiniCard = ({ answeredBy, isFollowing, onFollow }) => {
+  if (!answeredBy) return null;
+
+  return (
+    <div className="w-72 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <img
+          src={answeredBy.profilePic || "/default-avatar.png"}
+          alt={answeredBy.name}
+          className="w-12 h-12 rounded-full object-cover"
+        />
+
+        <div className="leading-tight">
+          <p className="text-sm font-semibold text-gray-800">
+            {answeredBy.name}
+          </p>
+          <p className="text-xs text-gray-500 capitalize">
+            {answeredBy.role} • {answeredBy.subject}
+          </p>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="flex justify-between mt-4 text-center text-sm">
+        <div>
+          <p className="font-semibold text-gray-800">
+            {answeredBy.followers?.length || 0}
+          </p>
+          <p className="text-xs text-gray-500">Followers</p>
+        </div>
+        <div>
+          <p className="font-semibold text-gray-800">
+            {answeredBy.following?.length || 0}
+          </p>
+          <p className="text-xs text-gray-500">Following</p>
+        </div>
+        <div>
+          <p className="font-semibold text-gray-800">
+            {answeredBy.experience || 0}
+          </p>
+          <p className="text-xs text-gray-500">Years</p>
+        </div>
+
+      </div>
+
+      {/* Actions */}
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={onFollow}
+          className="flex-1 bg-blue-600 text-white text-sm py-1.5 rounded hover:bg-blue-700"
+        >
+          {isFollowing ? "Following" : "Follow"}
+        </button>
+
+        <Link
+          to={`/profile/${answeredBy._id}`}
+          className="flex-1 text-center border text-sm py-1.5 rounded hover:bg-gray-100"
+        >
+          View
+        </Link>
+      </div>
+    </div>
+  );
+};
