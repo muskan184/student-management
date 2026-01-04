@@ -58,6 +58,7 @@ export const getAnswers = async (req, res) => {
     const answers = await Answer.find({ questionId })
       .populate("answeredBy", "name role profilePic")
       .sort({ createdAt: -1 });
+      console.log("Answers: ",answers)
     res.status(200).json({ success: true, answers });
   } catch (error) {
     console.error("Error fetching answers:", error);
