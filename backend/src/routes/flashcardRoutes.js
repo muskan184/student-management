@@ -17,7 +17,6 @@ router.get("/", protect, getFlashcards);
 router.get("/:id", protect, getFlashcardById);
 router.put("/:id", protect, updateFlashcard);
 router.delete("/:id", protect, deleteFlashcard);
-
 router.post("/generate-ai", protect, generateAIFlashcards); // 🧠 AI route
 
 export default router;

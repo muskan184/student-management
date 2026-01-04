@@ -4,20 +4,23 @@ import Notification from "../models/Notification.js";
 export const sendGlobalNotification = async ({
   title,
   message,
-  link,
   actorId,
+  type,        // "question" | "answer"
   questionId,
+  answerId = null
 }) => {
   const users = await User.find({ _id: { $ne: actorId } });
 
-  const notifications = users.map((u) => ({
+  const notifications = users.map(u => ({
     user: u._id,
     title,
     message,
-    link,
-    questionId: questionId,
+    type,
+    questionId,
+    answerId,
     isRead: false,
   }));
 
   await Notification.insertMany(notifications);
 };
+

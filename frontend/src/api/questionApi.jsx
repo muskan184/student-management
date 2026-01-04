@@ -18,15 +18,13 @@ export const fetchQuestionById = async (id) => {
   return res.data;
 };
 
-/* ❌ WRONG: /questions/:id */
-/* ✅ CORRECT: /questions/delete/:id */
+
 export const deleteQuestion = async (id) => {
   const res = await axios.delete(`/questions/${id}`);
   return res.data;
 };
 
-/* ❌ WRONG: /questions/:id */
-/* ✅ CORRECT: /questions/update/:id */
+
 export const updateQuestion = async (id, data) => {
   const res = await axios.put(`/questions/${id}`, data);
   return res.data;
