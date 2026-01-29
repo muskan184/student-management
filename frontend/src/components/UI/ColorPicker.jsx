@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPalette } from "react-icons/fa";
 
-export const ColorPiker = () => {
-  const [color, setColor] = useState(
-    getComputedStyle(document.documentElement)
-      .getPropertyValue("--primary-color")
-      ?.trim() || "#4338ca"
-  );
+export const ColorPicker = () => {
+  const [color, setColor] = useState("#4338ca");
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--primary-color", color);
-  }, [color]);
+    const root = document.documentElement;
+
+    const savedColor =
+      getComputedStyle(root).getPropertyValue("--primary-color").trim();
+
+    if (savedColor) setColor(savedColor);
+  }, []);
+
+ 
 
   return (
     <div className="relative flex items-center group">

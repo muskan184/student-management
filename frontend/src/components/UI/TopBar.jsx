@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { DarkLightToggleButton } from "./DarkLightToggleButton";
-import { ColorPiker } from "./ColorPicker";
+import { ColorPicker } from "./ColorPicker";
 import { motion } from "framer-motion";
 
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
@@ -16,9 +16,7 @@ export const TopBar = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const [isDarkMode, setIsDarkMode] = useState(
-    () => localStorage.getItem("theme") === "dark"
-  );
+
   const [isOpen, setIsOpen] = useState(false);
 
   // 🔔 unread count only
@@ -29,7 +27,6 @@ export const TopBar = () => {
   const isTeacher = role === "teacher";
   const isAdmin = role === "admin";
 
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleLogout = () => {
@@ -78,11 +75,8 @@ export const TopBar = () => {
           </div>
         )}
 
-        <ColorPiker />
-        <DarkLightToggleButton
-          toggleDarkMode={toggleDarkMode}
-          isDarkMode={isDarkMode}
-        />
+        <ColorPicker />
+        <DarkLightToggleButton />
 
         {/* USER AREA */}
         {user ? (

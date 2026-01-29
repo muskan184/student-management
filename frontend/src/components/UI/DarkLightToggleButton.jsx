@@ -1,6 +1,26 @@
+import { useEffect, useState } from "react";
 import { FiSun, FiMoon } from "react-icons/fi";
 
-export const DarkLightToggleButton = ({ toggleDarkMode, isDarkMode }) => {
+export const DarkLightToggleButton = () => {
+const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // On mount: load saved theme
+  useEffect(() => {
+    const theme = localStorage.getItem("theme");
+
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      setIsDarkMode(true);
+    }
+  }, []);
+
+  // Toggle handler
+  const toggleDarkMode = () => {
+    const isDark = document.documentElement.classList.toggle("dark");
+    setIsDarkMode(isDark);
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  };
+
   return (
     <button
       onClick={toggleDarkMode}
