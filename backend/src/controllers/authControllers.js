@@ -264,13 +264,15 @@ export const updateUser = async (req, res) => {
   try {
     const userId = req.user._id;
     const updates = req.body;
-    if (req.file) {
-      updates.profilePic = "/uploads/" + req.file.filename;
-    }
+     delete updates.profilePic
 
+    if (req.file) {
+      updates.profilePic = `http://localhost:${process.env.PORT}/uploads/` + req.file.filename;
+    }
+    
     const updatedUser = await User.findByIdAndUpdate(userId, updates, {
       new: true,
-      runValidators: true,
+      runValidators: true, 
     }).select("-password");
 
     res.status(200).json({
@@ -278,6 +280,7 @@ export const updateUser = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
+    console.log("Error in Update Controller: ", error)
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };

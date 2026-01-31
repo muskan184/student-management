@@ -2,8 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
-  --primary-color: #4338ca;
+  --primary-color: #4338ca; /* Default indigo */
+  --primary-light: #6366f1; /* Lighter version */
+  --primary-dark: #3730a3; /* Darker version */
+}
+
+.dark {
+  --primary-color: #6366f1; /* Lighter in dark mode */
+  --primary-dark: #4338ca; /* Original in dark mode */
 }
 
 .icon-hover-light {

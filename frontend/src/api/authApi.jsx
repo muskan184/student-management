@@ -15,8 +15,8 @@ export const fetchprofile = async () => {
   return res.data.user;
 };
 
-export const updateUser = async (data) => {
-  const res = await axiosInstance.put("/auth/update", data);
+export const updateUser = async (formData) => {
+  const res = await axiosInstance.put("/auth/update", formData,{withCredentials: true});
   return res.data;
 };
 
