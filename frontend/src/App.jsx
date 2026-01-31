@@ -27,7 +27,7 @@ import PlannerList from "./pages/student/planner/PlannerList";
 import CreatePlanner from "./pages/student/planner/CreatePlanner";
 import EditPlanner from "./pages/student/planner/EditPlanner";
 import AskQuestion from "./pages/student/forum/AskQuestion";
-import ForumHome from "./pages/student/forum/ForumHome";
+// import ForumHome from "./pages/student/forum/ForumHome";
 import QuestionList from "./pages/student/forum/QuestionList";
 import QuestionDetail from "./pages/student/forum/QuestionDetail";
 import AIChat from "./pages/student/ai/AIChat";
@@ -121,8 +121,8 @@ export default function App() {
           <Route path="/student/planner/add-task" element={<CreatePlanner />} />
           <Route path="/student/planner/edit/:id" element={<EditPlanner />} />
           <Route path="/student/questions/ask" element={<AskQuestion />} />
-          <Route path="/student/questions" element={<ForumHome />} />
-          <Route path="/student/forum" element={<QuestionList />} />
+          {/* <Route path="/student/questions" element={<ForumHome />} /> */}
+          <Route path="/student/questions" element={<QuestionList />} />
           <Route path="/student/qa/ask" element={<AskQuestion />} />
           <Route path="/student/forum/:id" element={<QuestionDetail />} />
           <Route path="/student/ai" element={<AIChat />} />

@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useOutletContext, Link } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+  useOutletContext,
+  Link,
+} from "react-router-dom";
 import toast from "react-hot-toast";
 import { ArrowLeft, Send, Trash2, Edit, XCircle } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
@@ -127,21 +132,25 @@ export default function QuestionDetail() {
               >
                 {/* Header */}
                 <div className="flex  justify-between  items-start mb-3">
-                  <Link to={ans.role !== "AI" ? `/profile/${ans.answeredBy?._id}` : ""} className="flex relative group items-center cursor-pointer hover:bg-gray-200 py-2 px-3 rounded-md gap-3">
-
-                  {
-                    ans?.role !== "AI" ? 
+                  <Link
+                    to={
+                      ans.role !== "AI" ? `/profile/${ans.answeredBy?._id}` : ""
+                    }
+                    className="flex relative group items-center cursor-pointer hover:bg-gray-200 py-2 px-3 rounded-md gap-3"
+                  >
+                    {ans?.role !== "AI" ? (
                       <img
-                      src={ans?.answeredBy?.profilePic || "/default-avatar.png"}
-                      alt="User avatar"
-                      className="w-10 h-10 ring-offset-1 ring-2 ring-blue-500 rounded-full object-cover"
-                    /> : (
+                        src={
+                          ans?.answeredBy?.profilePic || "/default-avatar.png"
+                        }
+                        alt="User avatar"
+                        className="w-10 h-10 ring-offset-1 ring-2 ring-blue-500 rounded-full object-cover"
+                      />
+                    ) : (
                       <div className="w-10 h-10 ring-offset-1 ring-2 text-gray-950 font-semibold ring-blue-500 bg-blue-200 rounded-full flex items-center justify-center">
                         AI
                       </div>
-                    )
-                  }
-                  
+                    )}
 
                     <div className="leading-tight">
                       <p className="text-sm font-medium text-gray-800 hover:underline">
@@ -223,7 +232,6 @@ export default function QuestionDetail() {
                   </p>
                 )}
               </div>
-
             );
           })
         )}
@@ -253,10 +261,9 @@ export default function QuestionDetail() {
   );
 }
 
-
 const MiniCard = ({ teacher, isFollowing, onFollow }) => {
   if (!teacher) return null;
-
+  console.log("teacher is ", teacher);
   return (
     <div className="w-72 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
       {/* Header */}
@@ -268,9 +275,7 @@ const MiniCard = ({ teacher, isFollowing, onFollow }) => {
         />
 
         <div className="leading-tight">
-          <p className="text-sm font-semibold text-gray-800">
-            {teacher.name}
-          </p>
+          <p className="text-sm font-semibold text-gray-800">{teacher.name}</p>
           <p className="text-xs text-gray-500 capitalize">
             {teacher.role} • {teacher.subject}
           </p>

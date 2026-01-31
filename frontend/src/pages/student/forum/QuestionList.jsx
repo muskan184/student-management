@@ -32,6 +32,10 @@ export default function QuestionList() {
       setLoading(false);
     }
   };
+  console.log(
+    "Questions state:",
+    questions.map((q) => q.askedBy?.profilePic),
+  );
 
   /* ================= UI ================= */
   return (
@@ -60,6 +64,21 @@ export default function QuestionList() {
               key={q._id}
               className="bg-white p-4 rounded shadow flex justify-between items-center"
             >
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <img
+                    src={q.askedBy?.profilePic || "/default-avatar.png"}
+                    alt={q.askedBy?.name || "User"}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-blue-100 cursor-pointer hover:border-blue-300 transition-colors"
+                    onClick={() => navigate(`/profile/${q.askedBy?._id}`)}
+                  />
+                  {q.askedBy?.role === "teacher" && (
+                    <div className="absolute -bottom-1 -right-1 bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                      Teacher
+                    </div>
+                  )}
+                </div>
+              </div>
               <div>
                 <h3 className="font-medium">{q.text}</h3>
                 <p className="text-xs text-gray-500">
