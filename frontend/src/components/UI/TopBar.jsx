@@ -16,7 +16,6 @@ export const TopBar = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-
   const [isOpen, setIsOpen] = useState(false);
 
   // 🔔 unread count only
@@ -90,7 +89,7 @@ export const TopBar = () => {
               className="flex items-center gap-2 rounded-full px-2 py-1 border border-[var(--primary-color)] bg-white shadow-sm hover:shadow-md transition"
             >
               <img
-                src={user.profileImage}
+                src={user.profilePic || "/default-avatar.png"}
                 alt="user"
                 className="w-8 h-8 rounded-full object-cover"
               />
