@@ -60,9 +60,9 @@ export const TopBar = () => {
 
   // Close dropdowns when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => {
-      if (isOpen) setIsOpen(false);
-      if (notificationOpen) setNotificationOpen(false);
+    const handleClickOutside = (event) => {
+      if (isOpen && !event.target.closest('.user-dropdown')) setIsOpen(false);
+      if (notificationOpen && !event.target.closest('.notification-dropdown')) setNotificationOpen(false);
     };
 
     document.addEventListener('click', handleClickOutside);
@@ -71,13 +71,11 @@ export const TopBar = () => {
 
   return (
     <div className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
-
-
       {/* Center section - Empty for now */}
       <div className="flex-1"></div>
 
       {/* Right section - Controls */}
-      <div className="flex items-center gap-9 mx-5">
+      <div className="flex items-center gap-4">
         {/* Color Picker */}
         <div className="hover:scale-105 active:scale-95 transition-transform">
           <ColorPicker />
@@ -92,9 +90,12 @@ export const TopBar = () => {
         {user ? (
           <div className="flex items-center gap-3">
             {/* Notifications */}
-            <div className="relative">
+            <div className="relative notification-dropdown">
               <button
-                onClick={toggleNotifications}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleNotifications();
+                }}
                 className="relative p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-[var(--primary-color)]/30 dark:hover:border-[var(--primary-color)]/50 shadow-sm hover:shadow-md transition-all duration-200"
               >
                 <IoNotificationsOutline className="text-xl text-gray-600 dark:text-gray-400 hover:text-[var(--primary-color)] dark:hover:text-[var(--primary-color)] transition-colors" />
@@ -110,7 +111,6 @@ export const TopBar = () => {
               {notificationOpen && (
                 <div 
                   className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
-                  onClick={(e) => e.stopPropagation()}
                 >
                   <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-[var(--primary-color)]/10 to-[var(--primary-dark)]/10">
                     <div className="flex items-center justify-between">
@@ -134,7 +134,10 @@ export const TopBar = () => {
                   </div>
                   <div className="border-t border-gray-100 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-900/50">
                     <button
-                      onClick={() => navigate("/notifications")}
+                      onClick={() => {
+                        navigate("/notifications");
+                        setNotificationOpen(false);
+                      }}
                       className="w-full text-center text-[var(--primary-color)] hover:text-[var(--primary-dark)] font-medium text-sm py-2 rounded-lg hover:bg-[var(--primary-color)]/10 transition-colors"
                     >
                       View all notifications
@@ -145,19 +148,19 @@ export const TopBar = () => {
             </div>
 
             {/* User Profile */}
-            <div className="relative">
+            <div className="relative user-dropdown">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleDropdown();
                 }}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-[var(--primary-color)]/30 dark:hover:border-[var(--primary-color)]/50 shadow-sm hover:shadow-md transition-all duration-200 group"
+                className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-[var(--primary-color)]/30 dark:hover:border-[var(--primary-color)]/50 shadow-sm hover:shadow-md transition-all duration-200"
               >
                 <div className="relative">
                   <img
                     src={user?.profilePic || "/default-avatar.png"}
                     alt={user?.firstName}
-                    className="w-9 h-9 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-md group-hover:border-[var(--primary-color)]/50 transition-colors"
+                    className="w-9 h-9 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-md"
                     onError={(e) => {
                       e.target.src = "/default-avatar.png";
                     }}
@@ -165,7 +168,7 @@ export const TopBar = () => {
                   <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
                 </div>
 
-                <div className="hidden md:block text-left">
+                <div className="text-left">
                   <p className="font-semibold text-gray-800 dark:text-white text-sm">
                     {user.firstName} {user.lastName}
                   </p>
@@ -179,7 +182,6 @@ export const TopBar = () => {
               {isOpen && (
                 <div 
                   className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
-                  onClick={(e) => e.stopPropagation()}
                 >
                   {/* User Info */}
                   <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-[var(--primary-color)]/10 to-[var(--primary-dark)]/10">
@@ -288,25 +290,32 @@ export const TopBar = () => {
   );
 };
 
-const DropdownItem = ({ to, icon, label, onClick }) => (
-  <NavLink
-    to={to}
-    onClick={onClick}
-    className={({ isActive }) =>
-      `flex items-center gap-3 p-3 rounded-lg transition-all duration-200 mb-1 ${
-        isActive
-          ? "bg-[var(--primary-color)]/10 text-[var(--primary-color)] dark:text-[var(--primary-color)] border border-[var(--primary-color)]/20"
-          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm"
-      }`
-    }
-  >
-    <div className={`p-2 rounded-lg ${
-      isActive 
-        ? "bg-[var(--primary-color)]/20 text-[var(--primary-color)]" 
-        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-    }`}>
-      {icon}
-    </div>
-    <span className="font-medium">{label}</span>
-  </NavLink>
-);
+// Fixed DropdownItem component
+const DropdownItem = ({ to, icon, label, onClick }) => {
+  return (
+    <NavLink
+      to={to}
+      onClick={onClick}
+      className={({ isActive }) => {
+        return `flex items-center gap-3 p-3 rounded-lg transition-all duration-200 mb-1 ${
+          isActive
+            ? "bg-[var(--primary-color)]/10 text-[var(--primary-color)] dark:text-[var(--primary-color)] border border-[var(--primary-color)]/20"
+            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm"
+        }`;
+      }}
+    >
+      {({ isActive }) => (
+        <>
+          <div className={`p-2 rounded-lg ${
+            isActive 
+              ? "bg-[var(--primary-color)]/20 text-[var(--primary-color)]" 
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+          }`}>
+            {icon}
+          </div>
+          <span className="font-medium">{label}</span>
+        </>
+      )}
+    </NavLink>
+  );
+};
