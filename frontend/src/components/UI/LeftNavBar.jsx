@@ -123,7 +123,7 @@ export const LeftNavBar = ({ isOpen, setIsOpen }) => {
             background: "linear-gradient(to right, color-mix(in srgb, var(--primary-color) 10%, transparent), color-mix(in srgb, var(--primary-dark, #3730a3) 10%, transparent))"
           }}
         >
-          <div className="flex items-center gap-3">
+          <div onClick={()=>{navigate(`/profile/${user.id}`)}} className="flex cursor-pointer items-center gap-3">
             <div className="relative">
               <img
                 src={user.profilePic || "/default-avatar.png"}

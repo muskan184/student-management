@@ -184,7 +184,7 @@ export const TopBar = () => {
                   className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
                 >
                   {/* User Info */}
-                  <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-[var(--primary-color)]/10 to-[var(--primary-dark)]/10">
+                  <div onClick={()=>{navigate(`/profile/${user?.id}`)}} className="p-4 cursor-pointer border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-[var(--primary-color)]/10 to-[var(--primary-dark)]/10">
                     <div className="flex items-center gap-3">
                       <img
                         src={user?.profilePic || "/default-avatar.png"}
@@ -192,11 +192,11 @@ export const TopBar = () => {
                         className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-md"
                       />
                       <div>
-                        <h4 className="font-semibold text-gray-800 dark:text-white">
+                        <h4 className="font-semibold  text-gray-800 dark:text-white">
                           {user.firstName} {user.lastName}
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-gray-300 capitalize">{user.role}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                        <p className="text-xs text-gray-500 hover:underline dark:text-gray-400 truncate">{user.email}</p>
                       </div>
                     </div>
                   </div>

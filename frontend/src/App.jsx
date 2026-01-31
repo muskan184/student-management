@@ -129,7 +129,7 @@ export default function App() {
           <Route path="/student/ai-chat/:id" element={<AIChat />} />
           <Route path="/student/ai-history" element={<AIHistory />} />
           <Route path="/teacher/questions" element={<TeacherQuestions />} />
-          <Route path="/editprofile" element={<UserProfilePage />} />
+
           <Route path="/profile/:id" element={<UserProfilePage />} />
           <Route
             path="/teacher/question/:id"
