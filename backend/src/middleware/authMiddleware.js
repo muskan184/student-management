@@ -22,7 +22,6 @@ export const protect = async (req, res, next) => {
     }
 
     req.user = user;
-    console.log("User set in req.user:", req.user);
     next();
   } catch (error) {
     console.error("Protect middleware error:", error);

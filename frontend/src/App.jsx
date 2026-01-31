@@ -6,9 +6,9 @@ import { Login } from "./pages/Login";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import StudentProfile from "./pages/student/StudentProfile";
-import TeacherProfile from "./pages/teacher/TeacherProfile";
-import AdminProfile from "./pages/admin/AdminProfile";
+// import StudentProfile from "./pages/student/StudentProfile";
+// import TeacherProfile from "./pages/teacher/TeacherProfile";
+// import AdminProfile from "./pages/admin/AdminProfile";
 import { RoleRoute } from "./components/RoleRoute";
 import Home from "./pages/Home";
 import { MainLayout } from "./components/Layout/MainLayout";
@@ -70,7 +70,7 @@ export default function App() {
             }
           />
 
-          <Route
+          {/* <Route
             path="/student/profile"
             element={
               <RoleRoute allowedRoles={["student"]}>
@@ -93,7 +93,7 @@ export default function App() {
                 <AdminProfile />
               </RoleRoute>
             }
-          />
+          /> */}
 
           <Route
             path="/no-access"
@@ -129,6 +129,7 @@ export default function App() {
           <Route path="/student/ai-chat/:id" element={<AIChat />} />
           <Route path="/student/ai-history" element={<AIHistory />} />
           <Route path="/teacher/questions" element={<TeacherQuestions />} />
+          <Route path="/editprofile" element={<UserProfilePage />} />
           <Route path="/profile/:id" element={<UserProfilePage />} />
           <Route
             path="/teacher/question/:id"

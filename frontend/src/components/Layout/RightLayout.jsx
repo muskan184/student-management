@@ -7,14 +7,14 @@ export const RightLayout = () => {
   // 🔹 Get all context from MainLayout
   const context = useOutletContext();
 
-  const sidebarWidth = context.isSidebarOpen ? "ml-[260px]" : "ml-[70px]";
-
   return (
-    <div
-      className={`w-full min-h-screen flex flex-col transition-all duration-300 ${sidebarWidth}`}
-    >
-      <TopBar setShowLogoutModal={context.setShowLogoutModal} />
+    <div className="w-full min-h-screen flex flex-col">
+      {/* TopBar - fixed at top */}
+      <div className="sticky top-0 z-50">
+        <TopBar setShowLogoutModal={context.setShowLogoutModal} />
+      </div>
 
+      {/* Main content */}
       <div className="flex-1 p-4 overflow-auto">
         {/* 🔹 Forward context to children */}
         <Outlet context={context} />

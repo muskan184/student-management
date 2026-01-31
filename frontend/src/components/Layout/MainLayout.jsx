@@ -8,22 +8,27 @@ export const MainLayout = () => {
   const [currentQuestion, setCurrentQuestion] = useState("");
 
   return (
-    <div className="flex">
+    <div className="min-h-screen bg-gray-50">
+      {/* Sidebar - fixed on left */}
       <LeftNavBar
         setShowLogoutModal={setShowLogoutModal}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
       />
 
-      {/* Provide context to all child routes */}
-      <Outlet
-        context={{
-          setShowLogoutModal,
-          isSidebarOpen,
-          setIsSidebarOpen,
-          setCurrentQuestion,
-        }}
-      />
+      {/* Main content area */}
+      <div className={`transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? "md:pl-72" : "md:pl-20"
+      }`}>
+        <Outlet
+          context={{
+            setShowLogoutModal,
+            isSidebarOpen,
+            setIsSidebarOpen,
+            setCurrentQuestion,
+          }}
+        />
+      </div>
     </div>
   );
 };
