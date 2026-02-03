@@ -1,14 +1,39 @@
 import api from "./axiosInstance";
 
-export const getAIResponse = async (prompt, question) => {
-  try {
-    const response = await api.post("/aiResponse/generate", {
-      prompt,
-      question,
-    });
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching AI response:", error);
-    throw error;
-  }
+// 🤖 AI response
+export const getAIResponse = async (prompt) => {
+  const response = await api.post("/aiResponse/generate", { prompt });
+  return response.data.data;
+};
+
+// 💾 save message in a specific chat
+export const saveChatMessage = async (chatId, sender, text) => {
+  await api.post("/chat", {
+    chatId,
+    sender,
+    text,
+  });
+};
+
+// 📥 get messages of a specific chat
+export const getChatById = async (chatId) => {
+  const res = await api.get(`/chat/${chatId}`);
+  return res.data?.messages || [];
+};
+
+// 📚 all chats (sidebar history)
+export const getAllChats = async () => {
+  const res = await api.get("/chat/all");
+  return res.data?.chats || [];
+};
+
+// ➕ create new chat
+export const createNewChat = async () => {
+  const res = await api.post("/chat/new");
+  return res.data; // { success, chatId }
+};
+
+// 🗑 delete chat
+export const deleteChat = async (chatId) => {
+  await api.delete(`/chat/${chatId}`);
 };

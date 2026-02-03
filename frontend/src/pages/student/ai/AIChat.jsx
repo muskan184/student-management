@@ -1,65 +1,142 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MessageBubble from "./MessageBubble";
-import { getAIResponse } from "../../../api/aiApi";
+import ChatSidebar from "../../../components/UI/ChatSidebar";
+
+import {
+  getAIResponse,
+  getChatById,
+  saveChatMessage,
+  createNewChat,
+} from "../../../api/aiApi";
 
 export default function AIChat() {
-  const [messages, setMessages] = useState([
-    { sender: "ai", text: "Hi 👋 I am your AI Tutor. Ask me anything!" },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
+  const [activeChatId, setActiveChatId] = useState(
+    localStorage.getItem("activeChatId"),
+  );
 
-    const userMessage = { sender: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
+  const messagesEndRef = useRef(null);
+
+  // 🔹 Ensure at least one chat exists
+  useEffect(() => {
+    const initChat = async () => {
+      if (!activeChatId) {
+        const chat = await createNewChat();
+        setActiveChatId(chat._id);
+        localStorage.setItem("activeChatId", chat._id);
+      }
+    };
+
+    initChat();
+  }, []);
+
+  // 🔹 Load messages when chat changes
+  useEffect(() => {
+    if (!activeChatId) return;
+
+    const loadChat = async () => {
+      try {
+        const chat = await getChatById(activeChatId);
+
+        // ✅ MAIN FIX
+        setMessages(Array.isArray(chat?.messages) ? chat.messages : []);
+      } catch (err) {
+        console.error("Failed to load chat", err);
+        setMessages([]);
+      }
+    };
+
+    loadChat();
+  }, [activeChatId]);
+
+  // 🔹 Auto scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // 🔹 Send message
+  const handleSend = async () => {
+    if (!input.trim() || loading || !activeChatId) return;
+
+    const userText = input;
     setInput("");
     setLoading(true);
 
-    try {
-      const aiReply = await getAIResponse(input, currentQuestion);
+    const userMsg = { sender: "user", text: userText };
+    setMessages((prev) => [...prev, userMsg]);
 
-      setMessages((prev) => [
-        ...prev,
-        { sender: "ai", text: aiReply || "I couldn't understand 😕" },
-      ]);
+    await saveChatMessage(activeChatId, "user", userText);
+
+    try {
+      const aiReply = await getAIResponse(userText);
+
+      const aiMsg = {
+        sender: "ai",
+        text: aiReply || "🤔 I couldn't understand that.",
+      };
+
+      setMessages((prev) => [...prev, aiMsg]);
+      await saveChatMessage(activeChatId, "ai", aiMsg.text);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
         { sender: "ai", text: "❌ AI server error" },
       ]);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setLoading(false);
+  // 🔹 New chat
+  const handleNewChat = async () => {
+    const chat = await createNewChat();
+    setActiveChatId(chat._id);
+    localStorage.setItem("activeChatId", chat._id);
+    setMessages([]);
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((msg, index) => (
-          <MessageBubble key={index} msg={msg} />
-        ))}
-      </div>
+    <div className="flex h-full">
+      {/* 📚 Sidebar */}
+      <ChatSidebar
+        activeChatId={activeChatId}
+        setActiveChatId={setActiveChatId}
+        onNewChat={handleNewChat}
+      />
 
-      {/* Input */}
-      <div className="border-t bg-white p-3 flex gap-2">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Ask AI..."
-          className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
+      {/* 🤖 Chat Area */}
+      <div className="flex-1 flex flex-col bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {messages.map((msg, i) => (
+            <MessageBubble key={i} msg={msg} />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
 
-        <button
-          onClick={handleSend}
-          disabled={loading}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 rounded"
-        >
-          {loading ? "..." : "Send"}
-        </button>
+        {/* ✍️ Input */}
+        <div className="border-t bg-white p-3 flex gap-2">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            placeholder="Ask AI..."
+            className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <button
+            onClick={handleSend}
+            disabled={loading}
+            className={`px-4 rounded text-white ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
+          >
+            {loading ? "..." : "Send"}
+          </button>
+        </div>
       </div>
     </div>
   );

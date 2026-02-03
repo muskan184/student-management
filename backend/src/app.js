@@ -12,8 +12,9 @@ import answerRouter from "./routes/answerRoutes.js";
 import aiResponseRouter from "./routes/aiResponseRoutes.js";
 import flashRouter from "./routes/flashcardRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 import path from "path";
-import { fileURLToPath } from "url"
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
@@ -25,13 +26,12 @@ app.use(
     credentials: true,
   }),
 );
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(morgan("dev"));
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "./uploads")))
-
+app.use("/uploads", express.static(path.join(__dirname, "./uploads")));
 
 app.use("/api/auth", userRouter);
 app.use("/api/notes", noteRouter);
@@ -41,6 +41,7 @@ app.use("/api/questions", questionRouter);
 app.use("/api/flashcards", flashRouter);
 app.use("/api/answers", answerRouter);
 app.use("/api/aiResponse", aiResponseRouter);
+app.use("/api/chat", chatRoutes);
 app.use("/api/notifications", notificationRouter);
 
 connectDB();

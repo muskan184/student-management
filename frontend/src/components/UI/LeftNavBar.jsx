@@ -3,43 +3,20 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 // Keep your icon imports as they are
-import { 
-  AiFillHome,
-  AiOutlineHome,
-  AiOutlineRobot
-} from "react-icons/ai";
-import { 
-  FaUserEdit, 
-  FaSignOutAlt,
-  FaChevronDown
-} from "react-icons/fa";
-import { 
+import { AiFillHome, AiOutlineHome, AiOutlineRobot } from "react-icons/ai";
+import { FaUserEdit, FaSignOutAlt, FaChevronDown } from "react-icons/fa";
+import {
   FiMenu,
   FiSettings,
   FiBookOpen,
   FiBook,
-  FiMessageSquare
+  FiMessageSquare,
 } from "react-icons/fi";
-import { 
-  RxCross2,
-  RxDashboard
-} from "react-icons/rx";
-import { 
-  MdOutlineTask,
-  MdOutlineFlashOn
-} from "react-icons/md";
-import { 
-  RiQuestionAnswerLine
-} from "react-icons/ri";
-import { 
-  TbListDetails,
-  TbRobot,
-  TbCards
-} from "react-icons/tb";
-import { 
-  IoPersonOutline,
-  IoLogOutOutline
-} from "react-icons/io5";
+import { RxCross2, RxDashboard } from "react-icons/rx";
+import { MdOutlineTask, MdOutlineFlashOn } from "react-icons/md";
+import { RiQuestionAnswerLine } from "react-icons/ri";
+import { TbListDetails, TbRobot, TbCards } from "react-icons/tb";
+import { IoPersonOutline, IoLogOutOutline } from "react-icons/io5";
 
 export const LeftNavBar = ({ isOpen, setIsOpen }) => {
   const [openMenu, setOpenMenu] = useState(null);
@@ -79,27 +56,25 @@ export const LeftNavBar = ({ isOpen, setIsOpen }) => {
       <div className="flex items-center justify-between p-5 border-b border-gray-200/50 dark:border-gray-700/50">
         {isOpen && (
           <div className="flex items-center gap-3">
-            <div 
+            <div
               className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md"
-              style={{ 
-                background: "linear-gradient(to bottom right, var(--primary-color), var(--primary-dark, #3730a3))"
+              style={{
+                background:
+                  "linear-gradient(to bottom right, var(--primary-color), var(--primary-dark, #3730a3))",
               }}
             >
               <span className="text-white font-bold text-lg">IC</span>
             </div>
             <div>
-              <h1 
-                className="text-xl font-bold text-[var(--primary-color)]"
-              
-              >
+              <h1 className="text-xl font-bold text-[var(--primary-color)]">
                 IntelliConnect
               </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{role} Portal</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                {role} Portal
+              </p>
             </div>
           </div>
         )}
-        
-     
 
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -117,13 +92,19 @@ export const LeftNavBar = ({ isOpen, setIsOpen }) => {
 
       {/* User Info */}
       {isOpen && (
-        <div 
+        <div
           className="p-4 border-b border-gray-200/50 dark:border-gray-700/50 mx-3 my-4 rounded-xl"
-          style={{ 
-            background: "linear-gradient(to right, color-mix(in srgb, var(--primary-color) 10%, transparent), color-mix(in srgb, var(--primary-dark, #3730a3) 10%, transparent))"
+          style={{
+            background:
+              "linear-gradient(to right, color-mix(in srgb, var(--primary-color) 10%, transparent), color-mix(in srgb, var(--primary-dark, #3730a3) 10%, transparent))",
           }}
         >
-          <div onClick={()=>{navigate(`/profile/${user.id}`)}} className="flex cursor-pointer items-center gap-3">
+          <div
+            onClick={() => {
+              navigate(`/profile/${user.id}`);
+            }}
+            className="flex cursor-pointer items-center gap-3"
+          >
             <div className="relative">
               <img
                 src={user.profilePic || "/default-avatar.png"}
@@ -139,7 +120,9 @@ export const LeftNavBar = ({ isOpen, setIsOpen }) => {
               <h3 className="font-semibold text-gray-800 dark:text-gray-200 truncate">
                 {user.firstName} {user.lastName}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{user.email}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                {user.email}
+              </p>
             </div>
           </div>
         </div>
@@ -281,9 +264,11 @@ export const LeftNavBar = ({ isOpen, setIsOpen }) => {
         </div>
 
         {/* Logout Button */}
-        <div className={`pt-4 mt-4 border-t border-gray-200/50 dark:border-gray-700/50 ${
-          isOpen ? "px-2" : "px-1"
-        }`}>
+        <div
+          className={`pt-4 mt-4 border-t border-gray-200/50 dark:border-gray-700/50 ${
+            isOpen ? "px-2" : "px-1"
+          }`}
+        >
           <button
             onClick={handleLogout}
             className={`flex items-center w-full p-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 hover:shadow-sm ${
@@ -300,10 +285,11 @@ export const LeftNavBar = ({ isOpen, setIsOpen }) => {
 
       {/* Collapsed Hover Indicator */}
       {!isOpen && (
-        <div 
+        <div
           className="absolute top-1/2 -right-3 w-2 h-16 rounded-full shadow-lg transform -translate-y-1/2"
-          style={{ 
-            background: "linear-gradient(to bottom, var(--primary-color), var(--primary-dark, #3730a3))"
+          style={{
+            background:
+              "linear-gradient(to bottom, var(--primary-color), var(--primary-dark, #3730a3))",
           }}
         />
       )}
@@ -311,17 +297,9 @@ export const LeftNavBar = ({ isOpen, setIsOpen }) => {
   );
 };
 
-const NavItem = ({ 
-  to, 
-  text, 
-  icon, 
-  activeIcon, 
-  isOpen, 
-  location, 
-  onClick 
-}) => {
+const NavItem = ({ to, text, icon, activeIcon, isOpen, location, onClick }) => {
   const isActive = location.pathname === to;
-  
+
   return (
     <li>
       <NavLink
@@ -332,36 +310,37 @@ const NavItem = ({
             navIsActive || isActive
               ? "text-[var(--primary-color)] border shadow-sm"
               : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm"
-          }`}
+          }`
+        }
         style={({ isActive: navIsActive }) => ({
-          backgroundColor: (navIsActive || isActive) 
-            ? 'color-mix(in srgb, var(--primary-color) 10%, transparent)' 
-            : undefined,
-          borderColor: (navIsActive || isActive) 
-            ? 'color-mix(in srgb, var(--primary-color) 30%, transparent)' 
-            : undefined
+          backgroundColor:
+            navIsActive || isActive
+              ? "color-mix(in srgb, var(--primary-color) 10%, transparent)"
+              : undefined,
+          borderColor:
+            navIsActive || isActive
+              ? "color-mix(in srgb, var(--primary-color) 30%, transparent)"
+              : undefined,
         })}
       >
-        <div 
+        <div
           className="p-2 rounded-lg"
-          style={{ 
-            backgroundColor: isActive 
-              ? 'color-mix(in srgb, var(--primary-color) 20%, transparent)' 
-              : '#f3f4f6',
-            color: isActive ? 'var(--primary-color)' : '#6b7280'
+          style={{
+            backgroundColor: isActive
+              ? "color-mix(in srgb, var(--primary-color) 20%, transparent)"
+              : "#f3f4f6",
+            color: isActive ? "var(--primary-color)" : "#6b7280",
           }}
         >
           {isActive && activeIcon ? activeIcon : icon}
         </div>
         {isOpen && (
-          <span className="font-medium whitespace-nowrap">
-            {text}
-          </span>
+          <span className="font-medium whitespace-nowrap">{text}</span>
         )}
         {isActive && isOpen && (
-          <div 
+          <div
             className="w-2 h-2 rounded-full ml-auto"
-            style={{ backgroundColor: 'var(--primary-color)' }}
+            style={{ backgroundColor: "var(--primary-color)" }}
           />
         )}
       </NavLink>
@@ -378,9 +357,9 @@ const DropdownMenu = ({
   isOpen,
   openMenu,
   toggleDropdown,
-  location
+  location,
 }) => {
-  const isActive = links.some(link => location.pathname === link.to);
+  const isActive = links.some((link) => location.pathname === link.to);
   const isExpanded = openMenu === menuKey;
 
   return (
@@ -392,31 +371,39 @@ const DropdownMenu = ({
             ? "text-[var(--primary-color)] border shadow-sm"
             : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm"
         }`}
-        style={isActive ? {
-          backgroundColor: 'color-mix(in srgb, var(--primary-color) 10%, transparent)',
-          borderColor: 'color-mix(in srgb, var(--primary-color) 30%, transparent)'
-        } : {}}
+        style={
+          isActive
+            ? {
+                backgroundColor:
+                  "color-mix(in srgb, var(--primary-color) 10%, transparent)",
+                borderColor:
+                  "color-mix(in srgb, var(--primary-color) 30%, transparent)",
+              }
+            : {}
+        }
       >
-        <div 
+        <div
           className="p-2 rounded-lg"
-          style={{ 
-            backgroundColor: isActive 
-              ? 'color-mix(in srgb, var(--primary-color) 20%, transparent)' 
-              : '#f3f4f6',
-            color: isActive ? 'var(--primary-color)' : '#6b7280'
+          style={{
+            backgroundColor: isActive
+              ? "color-mix(in srgb, var(--primary-color) 20%, transparent)"
+              : "#f3f4f6",
+            color: isActive ? "var(--primary-color)" : "#6b7280",
           }}
         >
           {isActive && activeIcon ? activeIcon : icon}
         </div>
-        
+
         {isOpen && (
           <>
             <span className="font-medium ml-3 flex-1 text-left whitespace-nowrap">
               {title}
             </span>
-            <div className={`text-gray-400 transition-transform duration-200 ${
-              isExpanded ? "rotate-180" : ""
-            }`}>
+            <div
+              className={`text-gray-400 transition-transform duration-200 ${
+                isExpanded ? "rotate-180" : ""
+              }`}
+            >
               <FaChevronDown />
             </div>
           </>
@@ -427,7 +414,7 @@ const DropdownMenu = ({
         <ul className="ml-12 mt-1 space-y-1">
           {links.map((item, i) => {
             const isLinkActive = location.pathname === item.to;
-            
+
             return (
               <li key={i}>
                 <NavLink
@@ -440,17 +427,19 @@ const DropdownMenu = ({
                     }`
                   }
                   style={({ isActive: navIsActive }) => ({
-                    backgroundColor: (navIsActive || isLinkActive) 
-                      ? 'color-mix(in srgb, var(--primary-color) 10%, transparent)' 
-                      : undefined
+                    backgroundColor:
+                      navIsActive || isLinkActive
+                        ? "color-mix(in srgb, var(--primary-color) 10%, transparent)"
+                        : undefined,
                   })}
                 >
-                  <div 
+                  <div
                     className="w-1.5 h-1.5 rounded-full"
-                    style={{ 
-                      backgroundColor: (location.pathname === item.to) 
-                        ? 'var(--primary-color)' 
-                        : '#d1d5db'
+                    style={{
+                      backgroundColor:
+                        location.pathname === item.to
+                          ? "var(--primary-color)"
+                          : "#d1d5db",
                     }}
                   />
                   <span className="whitespace-nowrap">{item.label}</span>

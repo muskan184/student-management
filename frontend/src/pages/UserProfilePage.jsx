@@ -1,17 +1,32 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { 
-  deleteUser, 
-  fetchprofile, 
-  updateUser, 
-  getUserById 
+import {
+  deleteUser,
+  fetchprofile,
+  updateUser,
+  getUserById,
 } from "../api/authApi";
-import { 
-  User, Mail, Phone, MapPin, Calendar, 
-  BookOpen, Award, Briefcase, GraduationCap,
-  Building, BookMarked, ArrowLeft, Camera,
-  Save, Edit, Trash2, Loader, MessageCircle, UserPlus
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  BookOpen,
+  Award,
+  Briefcase,
+  GraduationCap,
+  Building,
+  BookMarked,
+  ArrowLeft,
+  Camera,
+  Save,
+  Edit,
+  Trash2,
+  Loader,
+  MessageCircle,
+  UserPlus,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -56,7 +71,7 @@ export function UserProfilePage() {
     const loadProfile = async () => {
       try {
         let userData;
-        
+
         if (id) {
           userData = await getUserById(id);
           setProfileUser(userData);
@@ -82,7 +97,7 @@ export function UserProfilePage() {
           branch: userData.branch || "",
           semester: userData.semester || "",
         });
-        
+
         // Clear any previous image file
         setProfileImageFile(null);
       } catch (error) {
@@ -102,95 +117,91 @@ export function UserProfilePage() {
     if (!file) return;
 
     // Validate file type and size
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
       return;
     }
-    
+
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image size should be less than 5MB");
       return;
     }
 
     setUploadingImage(true);
-    
+
     // Store the actual file
     setProfileImageFile(file);
-    
+
     // Create preview URL for display
     const previewUrl = URL.createObjectURL(file);
-    setForm(prev => ({ ...prev, profilePic: previewUrl }));
-    
+    setForm((prev) => ({ ...prev, profilePic: previewUrl }));
+
     setUploadingImage(false);
     toast.success("Image selected! Click Save to upload.");
   };
 
-// Save profile changes
-const saveProfile = async () => {
-  try {
+  // Save profile changes
+  const saveProfile = async () => {
+    try {
+      // Create FormData
+      const formData = new FormData();
 
-    // Create FormData
-    const formData = new FormData();
-    
-    // Add only the necessary fields, NOT the old profilePic
-    formData.append('name', form.name);
-    formData.append('email', form.email);
-    formData.append('role', form.role);
-    
-    // Optional fields - only add if they have value
-    if (form.phone) formData.append('phone', form.phone);
-    if (form.dob) formData.append('dob', form.dob);
-    if (form.address) formData.append('address', form.address);
-    
-    // Role-specific fields
-    if (form.role === 'teacher') {
-      formData.append('subject', form.subject);
-      if (form.qualification) formData.append('qualification', form.qualification);
-      if (form.experience) formData.append('experience', form.experience);
-    } else if (form.role === 'student') {
-      if (form.course) formData.append('course', form.course);
-      if (form.branch) formData.append('branch', form.branch);
-      if (form.semester) formData.append('semester', form.semester);
+      // Add all fields, including empty ones
+      formData.append("name", form.name || "");
+      formData.append("email", form.email || "");
+      formData.append("role", form.role || "");
+      formData.append("phone", form.phone || "");
+      formData.append("dob", form.dob || "");
+      formData.append("address", form.address || "");
+
+      // Role-specific fields - always send them even if empty
+      if (form.role === "teacher") {
+        formData.append("subject", form.subject || "");
+        formData.append("qualification", form.qualification || "");
+        formData.append("experience", form.experience || "");
+      } else if (form.role === "student") {
+        formData.append("course", form.course || "");
+        formData.append("branch", form.branch || "");
+        formData.append("semester", form.semester || "");
+      }
+
+      // CRITICAL: Add profile image file only if new file is selected
+      if (profileImageFile) {
+        formData.append("profilePic", profileImageFile);
+      } else {
+        formData.append("profilePic", form.profilePic || "");
+      }
+
+      await updateUser(formData);
+      toast.success("Profile updated successfully!");
+      setEdit(false);
+
+      // Refresh profile data
+      const res = await fetchprofile();
+      const userData = res.user || res;
+      setProfileUser(userData);
+      setForm((prev) => ({
+        ...prev,
+        ...userData,
+        dob: userData.dob ? userData.dob.split("T")[0] : "",
+        profilePic: userData.profilePic || "/default-avatar.png",
+      }));
+
+      // Clear the stored file after successful upload
+      setProfileImageFile(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Update failed");
+      console.error("Update error:", error);
     }
-    
-    // CRITICAL: Add profile image file only if new file is selected
-    if (profileImageFile) {
-      formData.append('profilePic', profileImageFile);
-    }else{
-       formData.append('profilePic', formData.profilePic);
-    }
-
-
-    await updateUser(formData);
-    toast.success("Profile updated successfully!");
-    setEdit(false);
-    
-    // Refresh profile data
-    const res = await fetchprofile();
-    const userData = res.user || res;
-    setProfileUser(userData);
-    setForm(prev => ({
-      ...prev,
-      ...userData,
-      profilePic: userData.profilePic || "/default-avatar.png"
-    }));
-    
-    // Clear the stored file after successful upload
-    setProfileImageFile(null);
-    
-  } catch (error) {
-    toast.error(error.response?.data?.message || "Update failed");
-    console.error("Update error:", error);
-  }
-};
+  };
 
   // Cancel edit mode
   const cancelEdit = () => {
     setEdit(false);
-    
+
     // Reset form to original values from profileUser
     if (profileUser) {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         name: profileUser.name || "",
         email: profileUser.email || "",
@@ -206,12 +217,12 @@ const saveProfile = async () => {
         semester: profileUser.semester || "",
       }));
     }
-    
+
     // Clear any uploaded image file
     setProfileImageFile(null);
-    
+
     // Revoke the blob URL to free memory
-    if (form.profilePic && form.profilePic.startsWith('blob:')) {
+    if (form.profilePic && form.profilePic.startsWith("blob:")) {
       URL.revokeObjectURL(form.profilePic);
     }
   };
@@ -219,7 +230,7 @@ const saveProfile = async () => {
   // Clean up blob URLs on unmount
   useEffect(() => {
     return () => {
-      if (form.profilePic && form.profilePic.startsWith('blob:')) {
+      if (form.profilePic && form.profilePic.startsWith("blob:")) {
         URL.revokeObjectURL(form.profilePic);
       }
     };
@@ -227,7 +238,11 @@ const saveProfile = async () => {
 
   // Delete account
   const deleteAccount = async () => {
-    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone.",
+      )
+    ) {
       return;
     }
 
@@ -251,10 +266,10 @@ const saveProfile = async () => {
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -270,7 +285,7 @@ const saveProfile = async () => {
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             <span className="font-medium">Back</span>
           </button>
-          
+
           {!isCurrentUser && (
             <div className="flex gap-3">
               <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
@@ -290,8 +305,14 @@ const saveProfile = async () => {
           {/* Profile Header */}
           <div className="relative">
             {/* Banner */}
-            <div className={`h-32 ${form.role === 'teacher' ? 'bg-gradient-to-r from-purple-500 to-indigo-600' : 'bg-gradient-to-r from-blue-500 to-cyan-600'}`}></div>
-            
+            <div
+              className={`h-32 ${
+                form.role === "teacher"
+                  ? "bg-gradient-to-r from-purple-500 to-indigo-600"
+                  : "bg-gradient-to-r from-blue-500 to-cyan-600"
+              }`}
+            ></div>
+
             {/* Profile Picture */}
             <div className="absolute -bottom-16 left-8">
               <div className="relative">
@@ -305,7 +326,7 @@ const saveProfile = async () => {
                     }}
                   />
                 </div>
-                
+
                 {/* Edit Image Button */}
                 {isCurrentUser && edit && (
                   <label className="absolute bottom-1 right-1 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 transition-colors shadow-lg">
@@ -319,13 +340,13 @@ const saveProfile = async () => {
                     />
                   </label>
                 )}
-                
+
                 {uploadingImage && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
                     <Loader className="w-6 h-6 animate-spin text-white" />
                   </div>
                 )}
-                
+
                 {/* Image changed indicator */}
                 {profileImageFile && (
                   <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
@@ -348,7 +369,9 @@ const saveProfile = async () => {
                         <input
                           type="text"
                           value={form.name}
-                          onChange={(e) => setForm({ ...form, name: e.target.value })}
+                          onChange={(e) =>
+                            setForm({ ...form, name: e.target.value })
+                          }
                           className="border-b-2 border-blue-500 focus:outline-none bg-transparent px-2 py-1 rounded"
                           placeholder="Enter your name"
                         />
@@ -357,31 +380,43 @@ const saveProfile = async () => {
                       )}
                     </h1>
                     <div className="flex items-center gap-2">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        form.role === 'teacher' 
-                          ? 'bg-purple-100 text-purple-800' 
-                          : 'bg-green-100 text-green-800'
-                      }`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          form.role === "teacher"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
                         {form.role?.toUpperCase()}
                       </span>
-                      {form.role === 'teacher' && form.subject && (
-                        <span className="text-gray-600 text-sm">• {form.subject}</span>
+                      {form.role === "teacher" && form.subject && (
+                        <span className="text-gray-600 text-sm">
+                          • {form.subject}
+                        </span>
                       )}
                     </div>
                   </div>
-                  
+
                   {!isCurrentUser && profileUser && (
                     <div className="flex gap-6 mt-4 text-sm text-gray-600">
                       <div className="flex flex-col">
-                        <span className="font-semibold text-gray-900">{profileUser.experience || 0}</span>
-                        <span>{form.role === 'teacher' ? 'Years Exp.' : 'Semester'}</span>
+                        <span className="font-semibold text-gray-900">
+                          {profileUser.experience || 0}
+                        </span>
+                        <span>
+                          {form.role === "teacher" ? "Years Exp." : "Semester"}
+                        </span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-semibold text-gray-900">{profileUser.followers?.length || 0}</span>
+                        <span className="font-semibold text-gray-900">
+                          {profileUser.followers?.length || 0}
+                        </span>
                         <span>Followers</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-semibold text-gray-900">{profileUser.following?.length || 0}</span>
+                        <span className="font-semibold text-gray-900">
+                          {profileUser.following?.length || 0}
+                        </span>
                         <span>Following</span>
                       </div>
                     </div>
@@ -468,7 +503,7 @@ const saveProfile = async () => {
                 className="md:col-span-2"
               />
 
-              {form.role === 'teacher' ? (
+              {form.role === "teacher" ? (
                 <>
                   <DetailField
                     icon={<BookOpen className="w-5 h-5 text-gray-500" />}
@@ -485,7 +520,9 @@ const saveProfile = async () => {
                     label="Qualification"
                     value={form.qualification}
                     edit={edit && isCurrentUser}
-                    onChange={(value) => setForm({ ...form, qualification: value })}
+                    onChange={(value) =>
+                      setForm({ ...form, qualification: value })
+                    }
                     type="text"
                     placeholder="B.Ed, M.Sc..."
                   />
@@ -495,12 +532,14 @@ const saveProfile = async () => {
                     label="Experience (Years)"
                     value={form.experience}
                     edit={edit && isCurrentUser}
-                    onChange={(value) => setForm({ ...form, experience: value })}
+                    onChange={(value) =>
+                      setForm({ ...form, experience: value })
+                    }
                     type="number"
                     placeholder="3"
                   />
                 </>
-              ) : form.role === 'student' ? (
+              ) : form.role === "student" ? (
                 <>
                   <DetailField
                     icon={<GraduationCap className="w-5 h-5 text-gray-500" />}
@@ -545,7 +584,8 @@ const saveProfile = async () => {
                   Delete Account
                 </button>
                 <p className="text-sm text-gray-500 mt-2">
-                  Warning: This action cannot be undone. All your data will be permanently deleted.
+                  Warning: This action cannot be undone. All your data will be
+                  permanently deleted.
                 </p>
               </div>
             )}
@@ -556,16 +596,16 @@ const saveProfile = async () => {
   );
 }
 
-function DetailField({ 
-  icon, 
-  label, 
-  value, 
-  edit = false, 
-  onChange, 
-  type = "text", 
-  placeholder = "", 
+function DetailField({
+  icon,
+  label,
+  value,
+  edit = false,
+  onChange,
+  type = "text",
+  placeholder = "",
   readOnly = false,
-  className = ""
+  className = "",
 }) {
   return (
     <div className={`space-y-2 ${className}`}>
@@ -573,7 +613,7 @@ function DetailField({
         {icon}
         <span className="text-sm font-medium">{label}</span>
       </div>
-      
+
       {edit && !readOnly ? (
         type === "textarea" ? (
           <textarea
@@ -594,7 +634,11 @@ function DetailField({
           />
         )
       ) : (
-        <p className={`px-3 py-2.5 rounded-lg bg-gray-50 ${value ? "text-gray-900" : "text-gray-400 italic"}`}>
+        <p
+          className={`px-3 py-2.5 rounded-lg bg-gray-50 ${
+            value ? "text-gray-900" : "text-gray-400 italic"
+          }`}
+        >
           {value || "Not provided"}
         </p>
       )}
