@@ -1,8 +1,5 @@
 import Chat from "../models/Chat.js";
 
-/* ===============================
-   ➕ CREATE NEW CHAT
-================================ */
 export const createNewChat = async (req, res) => {
   try {
     const chat = await Chat.create({
@@ -23,9 +20,6 @@ export const createNewChat = async (req, res) => {
   }
 };
 
-/* ===============================
-   💾 SAVE MESSAGE IN CHAT
-================================ */
 export const saveChatMessage = async (req, res) => {
   try {
     const { chatId, sender, text } = req.body;
@@ -49,6 +43,11 @@ export const saveChatMessage = async (req, res) => {
       });
     }
 
+    // 🔥 SET TITLE ONLY ON FIRST USER MESSAGE
+    if (sender === "user" && chat.messages.length === 0) {
+      chat.title = text.length > 30 ? text.slice(0, 30) + "..." : text;
+    }
+
     chat.messages.push({ sender, text });
     await chat.save();
 
@@ -65,9 +64,6 @@ export const saveChatMessage = async (req, res) => {
   }
 };
 
-/* ===============================
-   📥 GET CHAT BY ID
-================================ */
 export const getChatById = async (req, res) => {
   try {
     const chat = await Chat.findOne({
@@ -95,14 +91,11 @@ export const getChatById = async (req, res) => {
   }
 };
 
-/* ===============================
-   📚 GET ALL CHATS (SIDEBAR)
-================================ */
 export const getAllChats = async (req, res) => {
   try {
     const chats = await Chat.find({ userId: req.user._id })
       .sort({ updatedAt: -1 })
-      .select("_id updatedAt");
+      .select("_id title updatedAt");
 
     res.status(200).json({
       success: true,
@@ -117,9 +110,6 @@ export const getAllChats = async (req, res) => {
   }
 };
 
-/* ===============================
-   🗑 DELETE CHAT
-================================ */
 export const deleteChat = async (req, res) => {
   try {
     await Chat.findOneAndDelete({

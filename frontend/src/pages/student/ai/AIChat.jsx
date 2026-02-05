@@ -7,6 +7,7 @@ import {
   getChatById,
   saveChatMessage,
   createNewChat,
+  getAllChats,
 } from "../../../api/aiApi";
 
 export default function AIChat() {
@@ -15,12 +16,24 @@ export default function AIChat() {
   const [loading, setLoading] = useState(false);
 
   const [chats, setChats] = useState([]);
-
   const [activeChatId, setActiveChatId] = useState(null);
 
   const messagesEndRef = useRef(null);
 
+  // 🔹 Load ALL chats on page load
+  useEffect(() => {
+    loadChats();
+  }, []);
 
+  const loadChats = async () => {
+    try {
+      const res = await getAllChats();
+      setChats(Array.isArray(res?.chats) ? res.chats : []);
+    } catch (err) {
+      console.error("Failed to load chats", err);
+      setChats([]);
+    }
+  };
 
   // 🔹 Load messages when chat changes
   useEffect(() => {
@@ -28,10 +41,9 @@ export default function AIChat() {
 
     const loadChat = async () => {
       try {
-        const chat = await getChatById(activeChatId);
-
-        // ✅ MAIN FIX
-        setMessages(Array.isArray(chat) ? chat : []);
+        const res = await getChatById(activeChatId);
+        // backend { success, messages }
+        setMessages(Array.isArray(res?.messages) ? res.messages : []);
       } catch (err) {
         console.error("Failed to load chat", err);
         setMessages([]);
@@ -69,6 +81,9 @@ export default function AIChat() {
 
       setMessages((prev) => [...prev, aiMsg]);
       await saveChatMessage(activeChatId, "ai", aiMsg.text);
+
+      // 🔥 refresh sidebar title after first message
+      loadChats();
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -81,10 +96,20 @@ export default function AIChat() {
 
   // 🔹 New chat
   const handleNewChat = async () => {
-    const chat = await createNewChat();
-    setChats((prev)=>[{_id: chat?.chatId},...prev])
-    setActiveChatId(chat?.chatId);
-    setMessages([]);
+    try {
+      const res = await createNewChat();
+
+      const newChat = {
+        _id: res.chatId,
+        title: "New Chat",
+      };
+
+      setChats((prev) => [newChat, ...prev]);
+      setActiveChatId(res.chatId);
+      setMessages([]);
+    } catch (err) {
+      console.error("Failed to create chat", err);
+    }
   };
 
   return (

@@ -22,6 +22,13 @@ const chatSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
+    // 🔥 NEW FIELD (sidebar keyword)
+    title: {
+      type: String,
+      default: "New Chat",
+    },
+
     messages: [messageSchema],
   },
   { timestamps: true },

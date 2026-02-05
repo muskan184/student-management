@@ -16,7 +16,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
-dotenv.config(); 
+dotenv.config();
 
 const app = express();
 app.use(
