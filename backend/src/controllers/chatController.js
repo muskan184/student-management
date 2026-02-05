@@ -37,10 +37,11 @@ export const saveChatMessage = async (req, res) => {
       });
     }
 
-    const chat = await Chat.findOne({
+     const chat = await Chat.findOne({
       _id: chatId,
-      userId: req.user._id, // 🔐 security
+      userId: req.user._id,
     });
+
 
     if (!chat) {
       return res.status(404).json({
