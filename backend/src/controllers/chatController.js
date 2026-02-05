@@ -47,6 +47,8 @@ export const saveChatMessage = async (req, res) => {
     if (sender === "user" && chat.messages.length === 0) {
       chat.title = text.length > 30 ? text.slice(0, 30) + "..." : text;
     }
+    console.log("sender: ",sender, "  chat.messaes : ", chat.messages)
+    console.log("chat title: ", chat.title);
 
     chat.messages.push({ sender, text });
     await chat.save();
