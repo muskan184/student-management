@@ -36,11 +36,10 @@ export const saveChatMessage = async (req, res) => {
         message: "chatId, sender and text are required",
       });
     }
-    console.log("Saving message to chat:", { chatId });
-    console.log("Message details:", req.user._id);
+
     const chat = await Chat.findOne({
-      _id: new mongoose.Types.ObjectId(chatId),
-      userId: new mongoose.Types.ObjectId(req.user._id),
+      _id: chatId,
+      userId: req.user._id,
     });
 
     if (!chat) {

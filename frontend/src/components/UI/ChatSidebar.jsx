@@ -5,8 +5,10 @@ export default function ChatSidebar({
   activeChatId,
   setActiveChatId,
   onNewChat,
+  chats,
+  setChats
 }) {
-  const [chats, setChats] = useState([]);
+  
 
   useEffect(() => {
     loadChats();
@@ -15,7 +17,6 @@ export default function ChatSidebar({
   const loadChats = async () => {
     try {
       const data = await getAllChats();
-
       // ✅ ensure array
       setChats(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -24,20 +25,31 @@ export default function ChatSidebar({
     }
   };
 
-  const handleDelete = async (id) => {
-    await deleteChat(id);
-    loadChats();
+ const handleDelete = async (id) => {
 
-    if (id === activeChatId) {
-      setActiveChatId(null);
-      localStorage.removeItem("activeChatId");
-    }
-  };
+  setChats((prev) => prev.filter((chat) => chat._id !== id));
+
+  if (id === activeChatId) {
+    setActiveChatId(null);
+  }
+
+  try {
+    await deleteChat(id);
+  } catch (err) {
+    console.error("Delete failed", err);
+    loadChats();
+  }
+};
+
 
   return (
     <div className="w-64 border-r bg-white p-3">
       <button
-        onClick={onNewChat}
+        onClick={()=>{
+          onNewChat();
+          loadChats();
+        }
+        }
         className="w-full bg-green-600 text-white py-2 rounded mb-3"
       >
         + New Chat
@@ -53,7 +65,6 @@ export default function ChatSidebar({
             key={chat._id}
             onClick={() => {
               setActiveChatId(chat._id);
-              localStorage.setItem("activeChatId", chat._id);
             }}
             className={`p-2 rounded cursor-pointer flex justify-between items-center ${
               activeChatId === chat._id ? "bg-green-100" : "hover:bg-gray-100"

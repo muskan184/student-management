@@ -14,24 +14,13 @@ export default function AIChat() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [activeChatId, setActiveChatId] = useState(
-    localStorage.getItem("activeChatId"),
-  );
+  const [chats, setChats] = useState([]);
+
+  const [activeChatId, setActiveChatId] = useState(null);
 
   const messagesEndRef = useRef(null);
 
-  // 🔹 Ensure at least one chat exists
-  useEffect(() => {
-    const initChat = async () => {
-      if (!activeChatId) {
-        const chat = await createNewChat();
-        setActiveChatId(chat._id);
-        localStorage.setItem("activeChatId", chat._id);
-      }
-    };
 
-    initChat();
-  }, []);
 
   // 🔹 Load messages when chat changes
   useEffect(() => {
@@ -42,7 +31,7 @@ export default function AIChat() {
         const chat = await getChatById(activeChatId);
 
         // ✅ MAIN FIX
-        setMessages(Array.isArray(chat?.messages) ? chat.messages : []);
+        setMessages(Array.isArray(chat) ? chat : []);
       } catch (err) {
         console.error("Failed to load chat", err);
         setMessages([]);
@@ -93,18 +82,20 @@ export default function AIChat() {
   // 🔹 New chat
   const handleNewChat = async () => {
     const chat = await createNewChat();
-    setActiveChatId(chat._id);
-    localStorage.setItem("activeChatId", chat._id);
+    setChats((prev)=>[{_id: chat?.chatId},...prev])
+    setActiveChatId(chat?.chatId);
     setMessages([]);
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex flex-1 h-full min-h-0">
       {/* 📚 Sidebar */}
       <ChatSidebar
         activeChatId={activeChatId}
         setActiveChatId={setActiveChatId}
         onNewChat={handleNewChat}
+        chats={chats}
+        setChats={setChats}
       />
 
       {/* 🤖 Chat Area */}
