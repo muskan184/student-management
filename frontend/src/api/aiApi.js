@@ -18,7 +18,7 @@ export const saveChatMessage = async (chatId, sender, text) => {
 // 📥 get messages of a specific chat
 export const getChatById = async (chatId) => {
   const res = await api.get(`/chat/${chatId}`);
-  return res.data?.messages || [];
+  return res.data || [];
 };
 
 // 📚 all chats (sidebar history)
