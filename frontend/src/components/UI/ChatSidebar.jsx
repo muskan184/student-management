@@ -25,7 +25,7 @@ export default function ChatSidebar({
   // 🔥 SMART Chat Title (works with ANY backend)
   const getChatTitle = (chat) => {
     let text = "";
-    console.log("chat", chat);
+    console.log("", chat);
 
     console.log(text);
     if (chat?.prompt) {
